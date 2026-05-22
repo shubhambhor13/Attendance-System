@@ -87,25 +87,27 @@ const PORT = process.env.PORT || 3001;
 
 const createTransporter = () =>
   nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
-      user: process.env.EMAIL_USER || process.env.SMTP_USER,
-      pass: normalizeEmailPass(process.env.EMAIL_PASS || process.env.SMTP_PASS),
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
-let transporter = createTransporter();
+const transporter = createTransporter();
 
 const mailFrom = () =>
-  getEmailUser()
-    ? `"Digital Attendance System" <${getEmailUser()}>`
+  process.env.EMAIL_USER
+    ? `"Digital Attendance System" <${process.env.EMAIL_USER}>`
     : '"Digital Attendance System" <notifications@techsys.services>';
 
-transporter.verify(function (error, success) {
+transporter.verify((error, success) => {
   if (error) {
     console.log("SMTP ERROR:", error);
   } else {
-    console.log("SMTP READY");
+    console.log("SMTP SERVER READY");
   }
 });
 
@@ -229,14 +231,13 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 `;
 
 const sendOtpEmail = async (to, name, otp, subjectLine) => {
-  if (!isEmailConfigured()) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     const err = new Error("EMAIL_USER and EMAIL_PASS are not set");
     err.code = "ENOTCONFIGURED";
     throw err;
   }
-  transporter = createTransporter();
   const html = createOtpEmailTemplate(name, otp);
-  console.log(`[OTP] Sending email to ${to} from ${getEmailUser()}`);
+  console.log(`[OTP] Sending email to ${to} from ${process.env.EMAIL_USER || "(not set)"}`);
   try {
     const info = await transporter.sendMail({
       from: mailFrom(),
