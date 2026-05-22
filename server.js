@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import nodemailer from "nodemailer";
@@ -9,27 +10,11 @@ import { createClient } from "@supabase/supabase-js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env before other config
-const envPath = path.join(__dirname, "../.env");
-try {
-  if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, "utf-8");
-    envContent.split("\n").forEach((line) => {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith("#")) {
-        const parts = trimmed.split("=");
-        if (parts.length >= 2) {
-          const key = parts[0].trim();
-          const val = parts.slice(1).join("=").trim().replace(/^['"]|['"]$/g, "");
-          if (!process.env[key]) process.env[key] = val;
-        }
-      }
-    });
-    console.log("[Mail Server] Loaded environment variables from .env file.");
-  }
-} catch (e) {
-  console.warn("[Mail Server] Could not read .env file:", e);
-}
+dotenv.config({ path: path.join(__dirname, ".env") });
+
+const emailUser = () => process.env.EMAIL_USER || process.env.SMTP_USER;
+const emailPass = () => process.env.EMAIL_PASS || process.env.SMTP_PASS;
+const isEmailConfigured = () => Boolean(emailUser() && emailPass());
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -84,23 +69,23 @@ const PORT = process.env.PORT || 3001;
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: emailUser(),
+    pass: emailPass(),
   },
 });
 
 const mailFrom = () =>
-  process.env.SMTP_USER
-    ? `"Digital Attendance System" <${process.env.SMTP_USER}>`
+  emailUser()
+    ? `"Digital Attendance System" <${emailUser()}>`
     : '"Digital Attendance System" <notifications@techsys.services>';
 
-if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+if (isEmailConfigured()) {
   transporter.verify().then(
     () => console.log("[Mail Server] Gmail SMTP ready"),
     (err) => console.warn("[Mail Server] Gmail SMTP verify failed:", err.message)
   );
 } else {
-  console.warn("[Mail Server] SMTP_USER / SMTP_PASS not set — OTP emails will fail until configured.");
+  console.warn("[Mail Server] EMAIL_USER / EMAIL_PASS not set — OTP emails will fail until configured.");
 }
 
 // In-memory OTP fallback when Supabase is unavailable
@@ -184,8 +169,8 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 `;
 
 const sendOtpEmail = async (to, name, otp, subjectLine) => {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error("Email service not configured. Set SMTP_USER and SMTP_PASS.");
+  if (!isEmailConfigured()) {
+    throw new Error("Email service not configured. Set EMAIL_USER and EMAIL_PASS.");
   }
   const html = createOtpEmailTemplate(name, otp);
   await transporter.sendMail({
