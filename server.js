@@ -7,33 +7,18 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 
+dotenv.config();
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, ".env") });
-dotenv.config();
 
-const normalizeEmailPass = (pass) => (pass ? String(pass).replace(/\s+/g, "").trim() : "");
-
-const getEmailUser = () => (process.env.EMAIL_USER || process.env.SMTP_USER || "").trim();
-
-const getEmailPass = () => normalizeEmailPass(process.env.EMAIL_PASS || process.env.SMTP_PASS);
-
-const isEmailConfigured = () => Boolean(getEmailUser() && getEmailPass());
-
-const logEmailEnvStatus = () => {
-  const user = getEmailUser();
-  const pass = getEmailPass();
-  console.log("[Mail Server] EMAIL_USER:", user || "(not set)");
-  console.log("[Mail Server] EMAIL_PASS:", pass ? `set (${pass.length} chars)` : "(not set)");
-  if (process.env.EMAIL_USER) {
-    console.log("[Mail Server] Env source: Render/process EMAIL_USER & EMAIL_PASS");
-  } else if (process.env.SMTP_USER) {
-    console.log("[Mail Server] Env source: legacy SMTP_USER & SMTP_PASS");
-  }
-};
-
-logEmailEnvStatus();
+console.log("[Mail Server] EMAIL_USER:", process.env.EMAIL_USER || "(not set)");
+console.log(
+  "[Mail Server] EMAIL_PASS:",
+  process.env.EMAIL_PASS ? `set (${String(process.env.EMAIL_PASS).length} chars)` : "(not set)"
+);
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -85,27 +70,23 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-const createTransporter = () =>
-  nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
 
-const transporter = createTransporter();
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 
-const mailFrom = () =>
-  process.env.EMAIL_USER
-    ? `"Digital Attendance System" <${process.env.EMAIL_USER}>`
-    : '"Digital Attendance System" <notifications@techsys.services>';
+  requireTLS: true,
+
+  tls: {
+    rejectUnauthorized: false,
+    family: 4,
+  },
+});
 
 transporter.verify((error, success) => {
   if (error) {
@@ -115,6 +96,11 @@ transporter.verify((error, success) => {
   }
 });
 
+const mailFrom = () =>
+  process.env.EMAIL_USER
+    ? `"Digital Attendance System" <${process.env.EMAIL_USER}>`
+    : '"Digital Attendance System" <notifications@techsys.services>';
+
 const logOtpMailError = (context, err) => {
   console.error(`[OTP] ${context} — send failed:`, {
     message: err?.message,
@@ -122,13 +108,13 @@ const logOtpMailError = (context, err) => {
     response: err?.response,
     responseCode: err?.responseCode,
     command: err?.command,
-    emailUser: getEmailUser() || "(missing)",
-    passLength: getEmailPass().length,
+    emailUser: process.env.EMAIL_USER || "(missing)",
+    passLength: process.env.EMAIL_PASS ? String(process.env.EMAIL_PASS).length : 0,
   });
 };
 
 const otpApiError = (err) => {
-  if (!isEmailConfigured()) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     return {
       status: 503,
       error:

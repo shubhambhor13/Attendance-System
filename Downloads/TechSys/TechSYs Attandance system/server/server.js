@@ -70,24 +70,23 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-const createTransporter = () =>
-  nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
 
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+  requireTLS: true,
 
-const transporter = createTransporter();
+  tls: {
+    rejectUnauthorized: false,
+    family: 4,
+  },
+});
 
 transporter.verify((error, success) => {
   if (error) {
