@@ -11,10 +11,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config();
 
-const emailUser = () => process.env.EMAIL_USER || process.env.SMTP_USER;
-const emailPass = () => process.env.EMAIL_PASS || process.env.SMTP_PASS;
-const isEmailConfigured = () => Boolean(emailUser() && emailPass());
+const normalizeEmailPass = (pass) => (pass ? String(pass).replace(/\s+/g, "").trim() : "");
+
+const getEmailUser = () => (process.env.EMAIL_USER || process.env.SMTP_USER || "").trim();
+
+const getEmailPass = () => normalizeEmailPass(process.env.EMAIL_PASS || process.env.SMTP_PASS);
+
+const isEmailConfigured = () => Boolean(getEmailUser() && getEmailPass());
+
+const logEmailEnvStatus = () => {
+  const user = getEmailUser();
+  const pass = getEmailPass();
+  console.log("[Mail Server] EMAIL_USER:", user || "(not set)");
+  console.log("[Mail Server] EMAIL_PASS:", pass ? `set (${pass.length} chars)` : "(not set)");
+  if (process.env.EMAIL_USER) {
+    console.log("[Mail Server] Env source: Render/process EMAIL_USER & EMAIL_PASS");
+  } else if (process.env.SMTP_USER) {
+    console.log("[Mail Server] Env source: legacy SMTP_USER & SMTP_PASS");
+  }
+};
+
+logEmailEnvStatus();
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -66,27 +85,68 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: emailUser(),
-    pass: emailPass(),
-  },
-});
+const createTransporter = () =>
+  nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER || process.env.SMTP_USER,
+      pass: normalizeEmailPass(process.env.EMAIL_PASS || process.env.SMTP_PASS),
+    },
+  });
+
+let transporter = createTransporter();
 
 const mailFrom = () =>
-  emailUser()
-    ? `"Digital Attendance System" <${emailUser()}>`
+  getEmailUser()
+    ? `"Digital Attendance System" <${getEmailUser()}>`
     : '"Digital Attendance System" <notifications@techsys.services>';
 
-if (isEmailConfigured()) {
-  transporter.verify().then(
-    () => console.log("[Mail Server] Gmail SMTP ready"),
-    (err) => console.warn("[Mail Server] Gmail SMTP verify failed:", err.message)
-  );
-} else {
-  console.warn("[Mail Server] EMAIL_USER / EMAIL_PASS not set — OTP emails will fail until configured.");
-}
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("SMTP ERROR:", error);
+  } else {
+    console.log("SMTP READY");
+  }
+});
+
+const logOtpMailError = (context, err) => {
+  console.error(`[OTP] ${context} — send failed:`, {
+    message: err?.message,
+    code: err?.code,
+    response: err?.response,
+    responseCode: err?.responseCode,
+    command: err?.command,
+    emailUser: getEmailUser() || "(missing)",
+    passLength: getEmailPass().length,
+  });
+};
+
+const otpApiError = (err) => {
+  if (!isEmailConfigured()) {
+    return {
+      status: 503,
+      error:
+        "Email service is not configured on the server. Set EMAIL_USER and EMAIL_PASS in Render environment variables.",
+    };
+  }
+  if (err?.code === "EAUTH" || err?.responseCode === 535) {
+    return {
+      status: 503,
+      error:
+        "Gmail authentication failed. Verify EMAIL_USER and EMAIL_PASS (16-character app password) on Render.",
+    };
+  }
+  if (err?.code === "ECONNECTION" || err?.code === "ETIMEDOUT") {
+    return {
+      status: 503,
+      error: "Could not connect to Gmail SMTP. Please try again in a moment.",
+    };
+  }
+  return {
+    status: 500,
+    error: err?.message || "Failed to send OTP email. Please try again.",
+  };
+};
 
 // In-memory OTP fallback when Supabase is unavailable
 const otpStore = new Map();
@@ -170,15 +230,26 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 
 const sendOtpEmail = async (to, name, otp, subjectLine) => {
   if (!isEmailConfigured()) {
-    throw new Error("Email service not configured. Set EMAIL_USER and EMAIL_PASS.");
+    const err = new Error("EMAIL_USER and EMAIL_PASS are not set");
+    err.code = "ENOTCONFIGURED";
+    throw err;
   }
+  transporter = createTransporter();
   const html = createOtpEmailTemplate(name, otp);
-  await transporter.sendMail({
-    from: mailFrom(),
-    to,
-    subject: subjectLine,
-    html,
-  });
+  console.log(`[OTP] Sending email to ${to} from ${getEmailUser()}`);
+  try {
+    const info = await transporter.sendMail({
+      from: mailFrom(),
+      to,
+      subject: subjectLine,
+      html,
+    });
+    console.log(`[OTP] Email accepted by Gmail: messageId=${info.messageId}`);
+    return info;
+  } catch (err) {
+    logOtpMailError(`send to ${to}`, err);
+    throw err;
+  }
 };
 
 // POST /api/send-otp  { email }
@@ -205,12 +276,9 @@ app.post("/api/send-otp", async (req, res) => {
     console.log(`[OTP] Sent OTP to ${email} for employee ${employee.name}`);
     res.json({ success: true, employeeName: employee.name, employeeId: employee.employee_id });
   } catch (error) {
-    console.error("[OTP] Error in OTP process:", error);
-    const message =
-      error?.message?.includes("not configured")
-        ? "Email service is not configured on the server."
-        : "Failed to send OTP email. Please try again.";
-    return res.status(500).json({ success: false, error: message });
+    logOtpMailError(`employee OTP for ${email}`, error);
+    const { status, error: msg } = otpApiError(error);
+    return res.status(status).json({ success: false, error: msg });
   }
 });
 
@@ -288,12 +356,9 @@ app.post("/api/send-admin-otp", async (req, res) => {
     console.log(`[OTP] Admin registration OTP sent to ${name} <${email}>`);
     res.json({ success: true });
   } catch (err) {
-    console.error("[OTP] Failed to send admin registration OTP:", err);
-    const message =
-      err?.message?.includes("not configured")
-        ? "Email service is not configured on the server."
-        : "Failed to send OTP email. Please try again.";
-    res.status(500).json({ success: false, error: message });
+    logOtpMailError(`admin OTP for ${email}`, err);
+    const { status, error: msg } = otpApiError(err);
+    res.status(status).json({ success: false, error: msg });
   }
 });
 
