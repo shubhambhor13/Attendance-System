@@ -84,8 +84,10 @@ const transporter = nodemailer.createTransport({
 
   tls: {
     rejectUnauthorized: false,
-    family: 4,
+    servername: "smtp.gmail.com",
   },
+
+  family: 4,
 });
 
 transporter.verify((error, success) => {
