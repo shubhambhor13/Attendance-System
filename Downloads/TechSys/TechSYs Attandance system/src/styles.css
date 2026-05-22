@@ -1,0 +1,190 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Monolith Command Grid — slate-950 dark theme with command-blue accent */
+  --background: oklch(0.13 0.03 265);
+  --foreground: oklch(0.93 0.01 250);
+  --card: oklch(0.18 0.03 260);
+  --card-foreground: oklch(0.93 0.01 250);
+  --popover: oklch(0.18 0.03 260);
+  --popover-foreground: oklch(0.93 0.01 250);
+  --primary: oklch(0.72 0.16 230);
+  --primary-foreground: oklch(0.13 0.03 265);
+  --secondary: oklch(0.22 0.03 260);
+  --secondary-foreground: oklch(0.93 0.01 250);
+  --muted: oklch(0.22 0.03 260);
+  --muted-foreground: oklch(0.62 0.02 250);
+  --accent: oklch(0.72 0.16 230);
+  --accent-foreground: oklch(0.13 0.03 265);
+  --destructive: oklch(0.637 0.237 25.3); /* #ef4444 */
+  --destructive-foreground: oklch(0.98 0.01 250);
+  --border: oklch(0.28 0.03 260);
+  --input: oklch(0.22 0.03 260);
+  --ring: oklch(0.632 0.199 253.7);
+  --command-blue: oklch(0.632 0.199 253.7); /* #3b82f6 - Holiday/Primary */
+  --signal-green: oklch(0.723 0.176 153.2); /* #22c55e - Present */
+  --signal-amber: oklch(0.74 0.211 44.9);   /* #f97316 - Late */
+  --sunday-purple: oklch(0.612 0.228 303.4); /* #a855f7 - Sunday */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+.dark {
+  --background: oklch(0.21 0.04 264.4); /* #0f172a */
+  --foreground: oklch(0.92 0.01 250);   /* #e2e8f0 */
+  --card: oklch(0.28 0.04 260);         /* #1e293b */
+  --card-foreground: oklch(0.92 0.01 250);
+  --popover: oklch(0.28 0.04 260);
+  --popover-foreground: oklch(0.92 0.01 250);
+  --primary: oklch(0.75 0.18 253.7);
+  --primary-foreground: oklch(0.21 0.04 264.4);
+  --secondary: oklch(0.35 0.04 260);
+  --secondary-foreground: oklch(0.92 0.01 250);
+  --muted: oklch(0.35 0.04 260);
+  --muted-foreground: oklch(0.75 0.02 250);
+  --accent: oklch(0.35 0.04 260);
+  --accent-foreground: oklch(0.92 0.01 250);
+  --destructive: oklch(0.7 0.22 25); /* Brightened Red */
+  --destructive-foreground: oklch(0.98 0.01 250);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.632 0.199 253.7);
+  
+  /* Brightened status colors for Dark Mode */
+  --command-blue: oklch(0.75 0.18 253.7);
+  --signal-green: oklch(0.8 0.19 144.0);
+  --signal-amber: oklch(0.78 0.2 44.9);
+  --sunday-purple: oklch(0.7 0.22 303.4);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-mono-tech {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  .grid-pattern {
+    background-image:
+      linear-gradient(oklch(0.72 0.16 230 / 0.08) 1px, transparent 1px),
+      linear-gradient(to right, oklch(0.72 0.16 230 / 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .terminal-glow {
+    box-shadow: 0 0 32px oklch(0.72 0.16 230 / 0.18);
+  }
+  .text-command {
+    color: var(--command-blue);
+  }
+  .bg-command {
+    background-color: var(--command-blue);
+  }
+  .border-command {
+    border-color: var(--command-blue);
+  }
+  .text-signal {
+    color: var(--signal-green);
+  }
+  .text-sunday {
+    color: var(--sunday-purple);
+  }
+  .bg-sunday {
+    background-color: var(--sunday-purple);
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out both;
+  }
+}
