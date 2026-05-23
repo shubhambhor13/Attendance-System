@@ -13,7 +13,5 @@ services:
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
-      - key: EMAIL_USER
-        value: techsysservices9294@gmail.com
-      - key: EMAIL_PASS
-        value: mrcu tpaa fmgu xwdn
+      - key: RESEND_API_KEY
+        sync: false

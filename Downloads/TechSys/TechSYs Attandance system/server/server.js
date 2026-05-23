@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -70,33 +70,10 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+// Initialize Resend API
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-
-  requireTLS: true,
-
-  tls: {
-    rejectUnauthorized: false,
-    servername: "smtp.gmail.com",
-  },
-
-  family: 4,
-});
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("SMTP ERROR:", error);
-  } else {
-    console.log("SMTP SERVER READY");
-  }
-});
+console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
 
 const mailFrom = () =>
   process.env.EMAIL_USER
@@ -223,21 +200,21 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 `;
 
 const sendOtpEmail = async (to, name, otp, subjectLine) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    const err = new Error("EMAIL_USER and EMAIL_PASS are not set");
+  if (!process.env.RESEND_API_KEY) {
+    const err = new Error("RESEND_API_KEY is not set");
     err.code = "ENOTCONFIGURED";
     throw err;
   }
   const html = createOtpEmailTemplate(name, otp);
-  console.log(`[OTP] Sending email to ${to} from ${process.env.EMAIL_USER || "(not set)"}`);
+  console.log(`[OTP] Sending email to ${to} via Resend`);
   try {
-    const info = await transporter.sendMail({
-      from: mailFrom(),
+    const info = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to,
       subject: subjectLine,
       html,
     });
-    console.log(`[OTP] Email accepted by Gmail: messageId=${info.messageId}`);
+    console.log(`[OTP] Email sent via Resend: messageId=${info.id}`);
     return info;
   } catch (err) {
     logOtpMailError(`send to ${to}`, err);
@@ -1834,12 +1811,11 @@ app.post("/api/send-email", async (req, res) => {
 
     const subject = subjectOverride || `[TechSys] Daily Shift Audit - ${status.toUpperCase()} - ${date}`;
 
-    const info = await transporter.sendMail({
-      from: '"TechSys Services Notifications" <notifications@techsys.services>',
+    const info = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: targetEmail,
       subject: subject,
       html: html,
-      text: `Hello ${employee.name}. Your attendance for ${date} has been marked as ${status}.`,
     });
 
     const previewUrl = null;
@@ -1847,7 +1823,7 @@ app.post("/api/send-email", async (req, res) => {
     // Log the transaction
     const db = readDb();
     const logEntry = {
-      id: info.messageId || `nod_${Date.now()}`,
+      id: info.id || `nod_${Date.now()}`,
       employee_id: employee.employee_id,
       employee_name: employee.name,
       to: targetEmail,
@@ -1902,12 +1878,11 @@ app.post("/api/send-monthly-report", async (req, res) => {
 
     const subject = `[TechSys] Monthly Attendance Report - ${reportMonth}`;
 
-    const info = await transporter.sendMail({
-      from: '"TechSys Services Notifications" <notifications@techsys.services>',
+    const info = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: targetEmail,
       subject: subject,
       html: html,
-      text: `Hello ${employee.name}. Your monthly attendance report for ${reportMonth} is ready.`,
     });
 
     const previewUrl = null;
@@ -1915,7 +1890,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
     // Log the transaction
     const db = readDb();
     const logEntry = {
-      id: info.messageId || `nod_${Date.now()}`,
+      id: info.id || `nod_${Date.now()}`,
       employee_id: employee.employee_id,
       employee_name: employee.name,
       to: targetEmail,
@@ -2005,19 +1980,18 @@ app.get("/api/send-date-notifications", async (req, res) => {
 
       const subject = `[TechSys] Shift Audit Notification - ${status.toUpperCase()} - ${dateStr}`;
 
-      const info = await transporter.sendMail({
-        from: '"TechSys Services Notifications" <notifications@techsys.services>',
+      const info = await resend.emails.send({
+        from: "onboarding@resend.dev",
         to: emp.email,
         subject: subject,
         html: html,
-        text: `Hello ${emp.name}. Your attendance for ${dateStr} has been marked as ${status}.`,
       });
 
       const previewUrl = null;
 
       // Log transaction
       const logEntry = {
-        id: info.messageId || `nod_${Date.now()}`,
+        id: info.id || `nod_${Date.now()}`,
         employee_id: emp.employee_id,
         employee_name: emp.name,
         to: emp.email,
@@ -2079,12 +2053,11 @@ app.post("/api/send-sunday-off", async (req, res) => {
     const html = createSundayWeeklyOffBrandedTemplate(employee.name, date);
     const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
-    const info = await transporter.sendMail({
-      from: '"TechSys Services Notifications" <notifications@techsys.services>',
+    const info = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: targetEmail,
       subject: subject,
       html: html,
-      text: `Hello ${employee.name}. Tomorrow, Sunday, is observed as the official weekly off at TechSys Services.`,
     });
 
     const previewUrl = null;
@@ -2092,7 +2065,7 @@ app.post("/api/send-sunday-off", async (req, res) => {
     // Log the transaction
     const db = readDb();
     const logEntry = {
-      id: info.messageId || `nod_${Date.now()}`,
+      id: info.id || `nod_${Date.now()}`,
       employee_id: employee.employee_id,
       employee_name: employee.name,
       to: targetEmail,
@@ -2133,12 +2106,11 @@ app.post("/api/send-welcome", async (req, res) => {
     const html = createWelcomeBrandedTemplate(employee.name, employee.employee_id, employee.department);
     const subject = `Welcome to TechSys Services!`;
 
-    const info = await transporter.sendMail({
-      from: '"TechSys Services HR" <hr@techsys.services>',
+    const info = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: targetEmail,
       subject: subject,
       html: html,
-      text: `Hello ${employee.name}, Welcome to TechSys Services! We are delighted to have you as part of our team.`,
     });
 
     const previewUrl = null;
@@ -2146,7 +2118,7 @@ app.post("/api/send-welcome", async (req, res) => {
     // Log the transaction
     const db = readDb();
     const logEntry = {
-      id: info.messageId || `nod_${Date.now()}`,
+      id: info.id || `nod_${Date.now()}`,
       employee_id: employee.employee_id,
       employee_name: employee.name,
       to: targetEmail,
@@ -2202,17 +2174,16 @@ const startSundayWeeklyOffScheduler = () => {
               const html = createSundayWeeklyOffBrandedTemplate(employee.name, tomorrowStr);
               const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(tomorrowStr).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
-              const info = await transporter.sendMail({
-                from: '"TechSys Services Notifications" <notifications@techsys.services>',
+              const info = await resend.emails.send({
+                from: "onboarding@resend.dev",
                 to: targetEmail,
                 subject: subject,
                 html: html,
-                text: `Hello ${employee.name}. Tomorrow, Sunday, is observed as the official weekly off at TechSys Services.`,
               });
 
               const previewUrl = null;
               const logEntry = {
-                id: info.messageId || `nod_${Date.now()}`,
+                id: info.id || `nod_${Date.now()}`,
                 employee_id: employee.employee_id,
                 employee_name: employee.name,
                 to: targetEmail,
