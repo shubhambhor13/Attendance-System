@@ -14,11 +14,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-console.log("[Mail Server] EMAIL_USER:", process.env.EMAIL_USER || "(not set)");
-console.log(
-  "[Mail Server] EMAIL_PASS:",
-  process.env.EMAIL_PASS ? `set (${String(process.env.EMAIL_PASS).length} chars)` : "(not set)"
-);
+console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -1768,7 +1764,7 @@ app.post("/api/sync-database", (req, res) => {
   res.json({ success: true, message: `Database synchronized on server for tenant ${id}.` });
 });
 
-// API: Send NodeMailer branded email for an employee
+// API: Send branded email for an employee
 app.post("/api/send-email", async (req, res) => {
   const { employee, date, status, holidayName, checkIn, checkOut, hours, subjectOverride, messageOverride } = req.body;
   if (!employee || !date || !status) {
@@ -1835,7 +1831,7 @@ app.post("/api/send-email", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Email sent to ${employee.name} via NodeMailer! Preview: ${previewUrl || "Production SMTP"}`);
+    console.log(`[Mail Server] Email sent to ${employee.name} via Resend!`);
 
     res.json({
       success: true,
@@ -1843,7 +1839,7 @@ app.post("/api/send-email", async (req, res) => {
       previewUrl,
     });
   } catch (error) {
-    console.error("[Mail Server] NodeMailer error:", error);
+    console.error("[Mail Server] Email error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -1902,7 +1898,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Monthly report email sent to ${employee.name} via NodeMailer! Preview: ${previewUrl || "Production SMTP"}`);
+    console.log(`[Mail Server] Monthly report email sent to ${employee.name} via Resend!`);
 
     res.json({
       success: true,
@@ -1910,7 +1906,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
       previewUrl,
     });
   } catch (error) {
-    console.error("[Mail Server] NodeMailer Monthly report error:", error);
+    console.error("[Mail Server] Monthly report email error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -2077,10 +2073,10 @@ app.post("/api/send-sunday-off", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Sunday off sent to ${employee.name}! Preview: ${previewUrl || "Production SMTP"}`);
+    console.log(`[Mail Server] Sunday off sent to ${employee.name} via Resend!`);
     res.json({ success: true, previewUrl });
   } catch (error) {
-    console.error("[Mail Server] NodeMailer error:", error);
+    console.error("[Mail Server] Email error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -2130,10 +2126,10 @@ app.post("/api/send-welcome", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Welcome email sent to ${employee.name}! Preview: ${previewUrl || "Production SMTP"}`);
+    console.log(`[Mail Server] Welcome email sent to ${employee.name} via Resend!`);
     res.json({ success: true, previewUrl });
   } catch (error) {
-    console.error("[Mail Server] NodeMailer error:", error);
+    console.error("[Mail Server] Email error:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -2212,7 +2208,7 @@ startSundayWeeklyOffScheduler();
 
 app.listen(PORT, () => {
   console.log(`\n======================================================`);
-  console.log(`📡 TechSys NodeMailer Server Active on Port ${PORT}`);
+  console.log(`📡 TechSys Attendance Server Active on Port ${PORT}`);
   console.log(`🌐 API Service: http://localhost:${PORT}`);
   console.log(`📧 Send Date-wise: http://localhost:${PORT}/api/send-date-notifications?date=2026-05-18`);
   console.log(`======================================================\n`);
