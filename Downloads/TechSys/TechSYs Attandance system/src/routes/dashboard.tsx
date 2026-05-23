@@ -189,7 +189,7 @@ function Dashboard() {
               <>
                 <div className="flex gap-1.5 p-1 rounded-lg border border-border bg-card/50">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       const date = todayStr();
                       const holiday = storage.getHolidays().find(h => h.date === date);
                       const isSun = new Date(date).getDay() === 0;
