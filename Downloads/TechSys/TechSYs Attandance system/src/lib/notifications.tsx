@@ -91,7 +91,7 @@ export const emailService = {
         status = "failed";
         console.error("[Email Engine] Email service failed:", errorMsg);
         toast.error("Email Delivery Failed!", {
-          description: `Email service error: "${errorMsg}". Please check RESEND_API_KEY in your .env file.`,
+          description: `Email service error: "${errorMsg}". Please check EMAIL_USER and EMAIL_PASS in your .env file.`,
           duration: 10000
         });
       }
@@ -234,7 +234,7 @@ export const emailService = {
         mailStatus = "failed";
         console.error("[Email Engine] Email service failed:", errorMsg);
         toast.error("Checkout Email Failed!", {
-          description: `Email service error: "${errorMsg}". Please verify RESEND_API_KEY.`,
+          description: `Email service error: "${errorMsg}". Please verify EMAIL_USER and EMAIL_PASS.`,
           duration: 10000
         });
       }
@@ -328,7 +328,7 @@ export const emailService = {
         status = "failed";
         console.error("[Email Engine] Email service failed:", errorMsg);
         toast.error("Holiday Broadcast Failed!", {
-          description: `Email service error: "${errorMsg}". Please check RESEND_API_KEY in your .env file.`,
+          description: `Email service error: "${errorMsg}". Please check EMAIL_USER and EMAIL_PASS in your .env file.`,
           duration: 10000
         });
       }
@@ -425,7 +425,7 @@ export const emailService = {
         mailStatus = "failed";
         console.error("[Email Engine] Email service failed:", errorMsg);
         toast.error("Monthly Report Failed!", {
-          description: `Email service error: "${errorMsg}". Please verify RESEND_API_KEY.`,
+          description: `Email service error: "${errorMsg}". Please verify EMAIL_USER and EMAIL_PASS.`,
           duration: 10000
         });
       }

@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import fs from "fs";
 
-/// RESEND FINAL CLEANUP COMPLETE
+/// LOCALHOST EMAIL SYSTEM ACTIVE
 import path from "path";
 import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
+console.log(`[Mail Server] Gmail SMTP Config - User: ${process.env.EMAIL_USER ? '***SET***' : 'NOT SET'}`);
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -68,10 +68,16 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-// Initialize Resend API
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
+console.log(`[Mail Server] Gmail SMTP Config - User: ${process.env.EMAIL_USER ? '***SET***' : 'NOT SET'}`);
 
 const logOtpMailError = (context, err) => {
   console.error(`[OTP] ${context} — send failed:`, {
@@ -80,16 +86,17 @@ const logOtpMailError = (context, err) => {
     response: err?.response,
     responseCode: err?.responseCode,
     command: err?.command,
-    resendKey: process.env.RESEND_API_KEY ? "***SET***" : "(missing)",
+    emailUser: process.env.EMAIL_USER ? "***SET***" : "(missing)",
+    passLength: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
   });
 };
 
 const otpApiError = (err) => {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     return {
       status: 503,
       error:
-        "Email service is not configured on the server. Set RESEND_API_KEY in Render environment variables.",
+        "Email service is not configured on the server. Set EMAIL_USER and EMAIL_PASS in .env file.",
     };
   }
   return {
@@ -179,21 +186,21 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 `;
 
 const sendOtpEmail = async (to, name, otp, subjectLine) => {
-  if (!process.env.RESEND_API_KEY) {
-    const err = new Error("RESEND_API_KEY is not set");
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    const err = new Error("EMAIL_USER or EMAIL_PASS is not set");
     err.code = "ENOTCONFIGURED";
     throw err;
   }
   const html = createOtpEmailTemplate(name, otp);
-  console.log(`[OTP] Sending email to ${to} via Resend`);
+  console.log(`[OTP] Sending email to ${to} via Gmail SMTP`);
   try {
-    const info = await resend.emails.send({
-      from: "TechSys Services <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: to,
       subject: subjectLine,
       html: html,
     });
-    console.log(`[OTP] Email sent via Resend: messageId=${info.id}`);
+    console.log(`[OTP] Email sent via Gmail SMTP: messageId=${info.messageId || info.response || 'success'}`);
     return info;
   } catch (err) {
     logOtpMailError(`send to ${to}`, err);
@@ -1790,8 +1797,8 @@ app.post("/api/send-email", async (req, res) => {
 
     const subject = subjectOverride || `[TechSys] Daily Shift Audit - ${status.toUpperCase()} - ${date}`;
 
-    const info = await resend.emails.send({
-      from: "TechSys Services <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: targetEmail,
       subject: subject,
       html: html,
@@ -1814,7 +1821,7 @@ app.post("/api/send-email", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Email sent to ${employee.name} via Resend!`);
+    console.log(`[Mail Server] Email sent to ${employee.name} via Gmail SMTP!`);
 
     res.json({
       success: true,
@@ -1857,8 +1864,8 @@ app.post("/api/send-monthly-report", async (req, res) => {
 
     const subject = `[TechSys] Monthly Attendance Report - ${reportMonth}`;
 
-    const info = await resend.emails.send({
-      from: "TechSys Services <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: targetEmail,
       subject: subject,
       html: html,
@@ -1881,7 +1888,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Monthly report email sent to ${employee.name} via Resend!`);
+    console.log(`[Mail Server] Monthly report email sent to ${employee.name} via Gmail SMTP!`);
 
     res.json({
       success: true,
@@ -1959,8 +1966,8 @@ app.get("/api/send-date-notifications", async (req, res) => {
 
       const subject = `[TechSys] Shift Audit Notification - ${status.toUpperCase()} - ${dateStr}`;
 
-      const info = await resend.emails.send({
-        from: "TechSys Services <onboarding@resend.dev>",
+      const info = await transporter.sendMail({
+        from: process.env.EMAIL_USER,
         to: emp.email,
         subject: subject,
         html: html,
@@ -2032,8 +2039,8 @@ app.post("/api/send-sunday-off", async (req, res) => {
     const html = createSundayWeeklyOffBrandedTemplate(employee.name, date);
     const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
-    const info = await resend.emails.send({
-      from: "TechSys Services <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: targetEmail,
       subject: subject,
       html: html,
@@ -2056,7 +2063,7 @@ app.post("/api/send-sunday-off", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Sunday off sent to ${employee.name} via Resend!`);
+    console.log(`[Mail Server] Sunday off sent to ${employee.name} via Gmail SMTP!`);
     res.json({ success: true, previewUrl });
   } catch (error) {
     console.error("[Mail Server] Email error:", error);
@@ -2085,8 +2092,8 @@ app.post("/api/send-welcome", async (req, res) => {
     const html = createWelcomeBrandedTemplate(employee.name, employee.employee_id, employee.department);
     const subject = `Welcome to TechSys Services!`;
 
-    const info = await resend.emails.send({
-      from: "TechSys Services <onboarding@resend.dev>",
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: targetEmail,
       subject: subject,
       html: html,
@@ -2109,7 +2116,7 @@ app.post("/api/send-welcome", async (req, res) => {
     db.logs.unshift(logEntry);
     writeDb(db);
 
-    console.log(`[Mail Server] Welcome email sent to ${employee.name} via Resend!`);
+    console.log(`[Mail Server] Welcome email sent to ${employee.name} via Gmail SMTP!`);
     res.json({ success: true, previewUrl });
   } catch (error) {
     console.error("[Mail Server] Email error:", error);
@@ -2153,8 +2160,8 @@ const startSundayWeeklyOffScheduler = () => {
               const html = createSundayWeeklyOffBrandedTemplate(employee.name, tomorrowStr);
               const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(tomorrowStr).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
-              const info = await resend.emails.send({
-                from: "TechSys Services <onboarding@resend.dev>",
+              const info = await transporter.sendMail({
+                from: process.env.EMAIL_USER,
                 to: targetEmail,
                 subject: subject,
                 html: html,
