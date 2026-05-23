@@ -71,8 +71,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
 
-const mailFrom = () => "onboarding@resend.dev";
-
 const logOtpMailError = (context, err) => {
   console.error(`[OTP] ${context} — send failed:`, {
     message: err?.message,
@@ -90,19 +88,6 @@ const otpApiError = (err) => {
       status: 503,
       error:
         "Email service is not configured on the server. Set RESEND_API_KEY in Render environment variables.",
-    };
-  }
-  if (err?.code === "EAUTH" || err?.responseCode === 535) {
-    return {
-      status: 503,
-      error:
-        "Email authentication failed. Verify RESEND_API_KEY on Render.",
-    };
-  }
-  if (err?.code === "ECONNECTION" || err?.code === "ETIMEDOUT") {
-    return {
-      status: 503,
-      error: "Could not connect to email service. Please try again in a moment.",
     };
   }
   return {
@@ -201,10 +186,10 @@ const sendOtpEmail = async (to, name, otp, subjectLine) => {
   console.log(`[OTP] Sending email to ${to} via Resend`);
   try {
     const info = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to,
+      from: "TechSys Services <onboarding@resend.dev>",
+      to: to,
       subject: subjectLine,
-      html,
+      html: html,
     });
     console.log(`[OTP] Email sent via Resend: messageId=${info.id}`);
     return info;
@@ -1804,7 +1789,7 @@ app.post("/api/send-email", async (req, res) => {
     const subject = subjectOverride || `[TechSys] Daily Shift Audit - ${status.toUpperCase()} - ${date}`;
 
     const info = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "TechSys Services <onboarding@resend.dev>",
       to: targetEmail,
       subject: subject,
       html: html,
@@ -1871,7 +1856,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
     const subject = `[TechSys] Monthly Attendance Report - ${reportMonth}`;
 
     const info = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "TechSys Services <onboarding@resend.dev>",
       to: targetEmail,
       subject: subject,
       html: html,
@@ -1973,7 +1958,7 @@ app.get("/api/send-date-notifications", async (req, res) => {
       const subject = `[TechSys] Shift Audit Notification - ${status.toUpperCase()} - ${dateStr}`;
 
       const info = await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: "TechSys Services <onboarding@resend.dev>",
         to: emp.email,
         subject: subject,
         html: html,
@@ -2046,7 +2031,7 @@ app.post("/api/send-sunday-off", async (req, res) => {
     const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
     const info = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "TechSys Services <onboarding@resend.dev>",
       to: targetEmail,
       subject: subject,
       html: html,
@@ -2099,7 +2084,7 @@ app.post("/api/send-welcome", async (req, res) => {
     const subject = `Welcome to TechSys Services!`;
 
     const info = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "TechSys Services <onboarding@resend.dev>",
       to: targetEmail,
       subject: subject,
       html: html,
@@ -2167,7 +2152,7 @@ const startSundayWeeklyOffScheduler = () => {
               const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(tomorrowStr).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
               const info = await resend.emails.send({
-                from: "onboarding@resend.dev",
+                from: "TechSys Services <onboarding@resend.dev>",
                 to: targetEmail,
                 subject: subject,
                 html: html,
