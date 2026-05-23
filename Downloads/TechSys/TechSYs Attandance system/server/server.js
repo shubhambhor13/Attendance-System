@@ -71,10 +71,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 console.log(`[Mail Server] Resend API Config - Key: ${process.env.RESEND_API_KEY ? '***SET***' : 'NOT SET'}`);
 
-const mailFrom = () =>
-  process.env.EMAIL_USER
-    ? `"Digital Attendance System" <${process.env.EMAIL_USER}>`
-    : '"Digital Attendance System" <notifications@techsys.services>';
+const mailFrom = () => "onboarding@resend.dev";
 
 const logOtpMailError = (context, err) => {
   console.error(`[OTP] ${context} — send failed:`, {
@@ -83,30 +80,29 @@ const logOtpMailError = (context, err) => {
     response: err?.response,
     responseCode: err?.responseCode,
     command: err?.command,
-    emailUser: process.env.EMAIL_USER || "(missing)",
-    passLength: process.env.EMAIL_PASS ? String(process.env.EMAIL_PASS).length : 0,
+    resendKey: process.env.RESEND_API_KEY ? "***SET***" : "(missing)",
   });
 };
 
 const otpApiError = (err) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.RESEND_API_KEY) {
     return {
       status: 503,
       error:
-        "Email service is not configured on the server. Set EMAIL_USER and EMAIL_PASS in Render environment variables.",
+        "Email service is not configured on the server. Set RESEND_API_KEY in Render environment variables.",
     };
   }
   if (err?.code === "EAUTH" || err?.responseCode === 535) {
     return {
       status: 503,
       error:
-        "Gmail authentication failed. Verify EMAIL_USER and EMAIL_PASS (16-character app password) on Render.",
+        "Email authentication failed. Verify RESEND_API_KEY on Render.",
     };
   }
   if (err?.code === "ECONNECTION" || err?.code === "ETIMEDOUT") {
     return {
       status: 503,
-      error: "Could not connect to Gmail SMTP. Please try again in a moment.",
+      error: "Could not connect to email service. Please try again in a moment.",
     };
   }
   return {
