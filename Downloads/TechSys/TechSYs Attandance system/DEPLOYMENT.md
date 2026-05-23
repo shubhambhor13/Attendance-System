@@ -28,8 +28,7 @@
 6. Set the following environment variables:
    - `SUPABASE_URL`: Your Supabase project URL
    - `SUPABASE_ANON_KEY`: Your Supabase anon key
-   - `EMAIL_USER`: Your Gmail address
-   - `EMAIL_PASS`: Your Gmail app password
+   - `RESEND_API_KEY`: Your Resend API key
 7. Deploy
 
 #### Option B: Manual Setup
@@ -67,8 +66,7 @@
 - `PORT`: 3001
 - `SUPABASE_URL`: Your Supabase project URL
 - `SUPABASE_ANON_KEY`: Your Supabase anon key
-- `EMAIL_USER`: Your Gmail address
-- `EMAIL_PASS`: Your Gmail app password
+- `RESEND_API_KEY`: Your Resend API key
 
 ### Frontend (Hostinger)
 - `VITE_API_URL`: Your deployed backend URL
@@ -94,7 +92,7 @@
 ### Backend Issues
 - Check Render logs for errors
 - Verify Supabase credentials are correct
-- Ensure EMAIL_USER and EMAIL_PASS are set on Render
+- Ensure RESEND_API_KEY is set on Render
 
 ### Frontend Issues
 - Verify `VITE_API_URL` is set correctly
