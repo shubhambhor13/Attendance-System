@@ -89,9 +89,9 @@ export const emailService = {
         const errData = await response.json().catch(() => ({}));
         errorMsg = errData?.error || `HTTP ${response.status}`;
         status = "failed";
-        console.error("[Email Engine] Local NodeMailer service failed:", errorMsg);
-        toast.error("SMTP Email Delivery Failed!", {
-          description: `Google rejected the login credentials: "${errorMsg}". Please check your 16-character Google App Password in your .env file.`,
+        console.error("[Email Engine] Email service failed:", errorMsg);
+        toast.error("Email Delivery Failed!", {
+          description: `Email service error: "${errorMsg}". Please check RESEND_API_KEY in your .env file.`,
           duration: 10000
         });
       }
@@ -134,7 +134,7 @@ export const emailService = {
       console.log(`Preview URL: ${previewUrl}`);
     }
 
-    // Show beautiful toast notification with clickable mail preview if Ethereal SMTP generates one
+    // Show beautiful toast notification with clickable mail preview if email service generates one
     toast.success("Automatic email sent!", {
       description: previewUrl ? (
         <span className="flex flex-col gap-1 mt-0.5">
@@ -232,14 +232,14 @@ export const emailService = {
         const errData = await response.json().catch(() => ({}));
         errorMsg = errData?.error || `HTTP ${response.status}`;
         mailStatus = "failed";
-        console.error("[Email Engine] Local NodeMailer service failed:", errorMsg);
-        toast.error("SMTP Checkout Email Failed!", {
-          description: `Google rejected the credentials: "${errorMsg}". Please verify your Google App Password.`,
+        console.error("[Email Engine] Email service failed:", errorMsg);
+        toast.error("Checkout Email Failed!", {
+          description: `Email service error: "${errorMsg}". Please verify RESEND_API_KEY.`,
           duration: 10000
         });
       }
     } catch (err: any) {
-      console.warn("[Email Engine] NodeMailer local backend unreachable, using browser simulation:", err);
+      console.warn("[Email Engine] Email service unreachable:", err);
     }
 
     const emailEntry: SentEmail = {
@@ -326,14 +326,14 @@ export const emailService = {
         const errData = await response.json().catch(() => ({}));
         errorMsg = errData?.error || `HTTP ${response.status}`;
         status = "failed";
-        console.error("[Email Engine] Local NodeMailer service failed:", errorMsg);
-        toast.error("SMTP Holiday Broadcast Failed!", {
-          description: `Google rejected the login credentials: "${errorMsg}". Please check your 16-character Google App Password in your .env file.`,
+        console.error("[Email Engine] Email service failed:", errorMsg);
+        toast.error("Holiday Broadcast Failed!", {
+          description: `Email service error: "${errorMsg}". Please check RESEND_API_KEY in your .env file.`,
           duration: 10000
         });
       }
     } catch (err: any) {
-      console.warn("[Email Engine] NodeMailer local backend unreachable, using browser simulation:", err);
+      console.warn("[Email Engine] Email service unreachable:", err);
     }
 
     const emailEntry: SentEmail = {
@@ -423,14 +423,14 @@ export const emailService = {
         const errData = await response.json().catch(() => ({}));
         errorMsg = errData?.error || `HTTP ${response.status}`;
         mailStatus = "failed";
-        console.error("[Email Engine] Local NodeMailer service failed:", errorMsg);
-        toast.error("SMTP Monthly Report Failed!", {
-          description: `Google rejected the credentials: "${errorMsg}". Please verify your Google App Password.`,
+        console.error("[Email Engine] Email service failed:", errorMsg);
+        toast.error("Monthly Report Failed!", {
+          description: `Email service error: "${errorMsg}". Please verify RESEND_API_KEY.`,
           duration: 10000
         });
       }
     } catch (err: any) {
-      console.warn("[Email Engine] NodeMailer local backend unreachable, using browser simulation:", err);
+      console.warn("[Email Engine] Email service unreachable:", err);
     }
 
     const emailEntry: SentEmail = {
@@ -498,7 +498,7 @@ export const emailService = {
         status = "failed";
       }
     } catch (err: any) {
-      console.warn("[Email Engine] NodeMailer local backend unreachable:", err);
+      console.warn("[Email Engine] Email service unreachable:", err);
     }
 
     const emailEntry: SentEmail = {
@@ -576,7 +576,7 @@ export const emailService = {
         status = "failed";
       }
     } catch (err: any) {
-      console.warn("[Email Engine] NodeMailer local backend unreachable:", err);
+      console.warn("[Email Engine] Email service unreachable:", err);
     }
 
     const emailEntry: SentEmail = {

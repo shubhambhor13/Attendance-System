@@ -231,7 +231,7 @@ function Reports() {
     setDateWiseLogs(logs);
   };
 
-  // Trigger NodeMailer Monthly Report Broadcast
+  // Trigger Monthly Report Broadcast
   const handleSendMonthlyReport = async () => {
     if (!selectedEmp) return;
     setSendingEmail(true);
