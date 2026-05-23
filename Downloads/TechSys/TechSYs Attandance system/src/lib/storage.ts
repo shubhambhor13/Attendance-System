@@ -1,3 +1,4 @@
+import { supabase } from './supabase';
 
 export type Employee = {
   id: string;
@@ -32,19 +33,54 @@ const RECORDS_KEY = "ts_records";
 const HOLIDAYS_KEY = "ts_holidays";
 
 export const storage = {
-  getEmployees: (): Employee[] => {
-    return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
-  },
-  saveEmployee: (emp: Omit<Employee, "id">) => {
-    const emps = storage.getEmployees();
-    const id = emp.employee_id.trim().toUpperCase();
-    if (emps.some(e => e.employee_id === id)) {
-      throw new Error(`Employee ID ${id} already exists`);
+  getEmployees: async (): Promise<Employee[]> => {
+    try {
+      const { data, error } = await supabase.from('employees').select('*').order('employee_id');
+      if (error) {
+        console.error('[Storage] Error fetching employees from Supabase:', error);
+        // Fallback to localStorage if Supabase fails
+        return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
+      }
+      return data || [];
+    } catch (err) {
+      console.error('[Storage] Error fetching employees:', err);
+      // Fallback to localStorage if Supabase fails
+      return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
     }
-    const newEmp = { ...emp, employee_id: id, id: crypto.randomUUID(), created_at: new Date().toISOString() };
-    emps.push(newEmp);
-    localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(emps));
-    return newEmp;
+  },
+  saveEmployee: async (emp: Omit<Employee, "id">) => {
+    try {
+      const id = emp.employee_id.trim().toUpperCase();
+      
+      // Check if employee already exists in Supabase
+      const { data: existing } = await supabase.from('employees').select('*').eq('employee_id', id).single();
+      
+      if (existing) {
+        throw new Error(`Employee ID ${id} already exists`);
+      }
+      
+      const newEmp = { ...emp, employee_id: id, id: crypto.randomUUID(), created_at: new Date().toISOString() };
+      
+      // Insert into Supabase
+      const { data, error } = await supabase.from('employees').insert([newEmp]).select().single();
+      
+      if (error) {
+        console.error('[Storage] Error saving employee to Supabase:', error);
+        // Fallback to localStorage if Supabase fails
+        const emps = await storage.getEmployees();
+        if (emps.some((e: Employee) => e.employee_id === id)) {
+          throw new Error(`Employee ID ${id} already exists`);
+        }
+        emps.push(newEmp);
+        localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(emps));
+        return newEmp;
+      }
+      
+      return data;
+    } catch (err: any) {
+      console.error('[Storage] Error saving employee:', err);
+      throw err;
+    }
   },
   getRecords: (date?: string): AttendanceRecord[] => {
     const all = JSON.parse(localStorage.getItem(RECORDS_KEY) || "[]") as AttendanceRecord[];
@@ -83,18 +119,30 @@ export const storage = {
     const filtered = all.filter(h => h.id !== id);
     localStorage.setItem(HOLIDAYS_KEY, JSON.stringify(filtered));
   },
-  deleteEmployee: (idOrEmpId: string) => {
-    const emps = storage.getEmployees();
-    const emp = emps.find(e => e.id === idOrEmpId || e.employee_id === idOrEmpId);
-    if (!emp) return;
+  deleteEmployee: async (idOrEmpId: string) => {
+    try {
+      const emps = await storage.getEmployees();
+      const emp = emps.find((e: Employee) => e.id === idOrEmpId || e.employee_id === idOrEmpId);
+      if (!emp) return;
 
-    const filteredEmps = emps.filter(e => e.id !== emp.id && e.employee_id !== emp.employee_id);
-    localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(filteredEmps));
+      // Delete from Supabase
+      const { error } = await supabase.from('employees').delete().eq('employee_id', emp.employee_id);
+      
+      if (error) {
+        console.error('[Storage] Error deleting employee from Supabase:', error);
+        // Fallback to localStorage if Supabase fails
+        const filteredEmps = emps.filter((e: Employee) => e.id !== emp.id && e.employee_id !== emp.employee_id);
+        localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(filteredEmps));
+      }
 
-    // Also delete associated records
-    const allRecords = storage.getRecords();
-    const filteredRecords = allRecords.filter(r => r.employee_id !== emp.employee_id);
-    localStorage.setItem(RECORDS_KEY, JSON.stringify(filteredRecords));
+      // Also delete associated records from localStorage
+      const allRecords = storage.getRecords();
+      const filteredRecords = allRecords.filter(r => r.employee_id !== emp.employee_id);
+      localStorage.setItem(RECORDS_KEY, JSON.stringify(filteredRecords));
+    } catch (err) {
+      console.error('[Storage] Error deleting employee:', err);
+      throw err;
+    }
   },
   clearAll: () => {
     localStorage.removeItem(EMPLOYEES_KEY);

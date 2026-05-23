@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, ChevronLeft, ChevronRight, Calendar as CalendarIcon, User } from "lucide-react";
-import { storage } from "@/lib/storage";
+import { storage, Employee } from "@/lib/storage";
 
 export const Route = createFileRoute("/employee-calendar")({
   head: () => ({
@@ -24,13 +24,14 @@ function EmployeeCalendar() {
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
 
-  const load = (targetId?: string) => {
+  const load = async (targetId?: string) => {
     const idToUse = targetId || employeeId;
     if (!idToUse) return;
     setLoading(true);
     
     const id = idToUse.trim().toUpperCase();
-    const employee = storage.getEmployees().find(e => e.employee_id === id);
+    const employees = await storage.getEmployees();
+    const employee = employees.find((e: Employee) => e.employee_id === id);
     
     if (!employee) {
       setCalendarData(null);

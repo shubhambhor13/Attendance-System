@@ -19,13 +19,13 @@ function AttendanceLogs() {
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
     
     const startDate = new Date(year, month - 1, 1).toISOString().slice(0, 10);
     const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
     
-    const employees = storage.getEmployees();
+    const employees = await storage.getEmployees();
     const records = storage.getRecords();
     const holidays = storage.getHolidays();
     const holidayMap = new Map(holidays.filter(h => h.date >= startDate && h.date <= endDate).map(h => [h.date, h.name]));

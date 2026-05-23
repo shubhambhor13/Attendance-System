@@ -29,7 +29,7 @@ export const emailService = {
       const activeUser = JSON.parse(localStorage.getItem("ts_active_user") || "null");
       const tenantId = activeUser?.role === "employee" ? null : activeUser?.email;
 
-      const employees = storage.getEmployees();
+      const employees = await storage.getEmployees();
       const records = storage.getRecords();
       const holidays = storage.getHolidays();
       await fetch(`${SERVER}/api/sync-database`, {

@@ -49,7 +49,7 @@ function Dashboard() {
     try {
       storage.saveHoliday({ date: holidayForm.date, name: holidayForm.name.trim() });
       
-      const emps = storage.getEmployees();
+      const emps = await storage.getEmployees();
       let sentCount = 0;
       for (const emp of emps) {
         if (emp.email) {
@@ -72,11 +72,11 @@ function Dashboard() {
     }
   };
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
     const date = todayStr();
     
-    const emps = storage.getEmployees();
+    const emps = await storage.getEmployees();
     const recs = storage.getRecords(date);
     const holiday = storage.getHolidays().find(h => h.date === date);
     
@@ -202,12 +202,12 @@ function Dashboard() {
                       }
 
                       if (isSun) {
-                        const emps = storage.getEmployees();
+                        const emps = await storage.getEmployees();
                         const sentEmails = emailService.getSentEmails();
                         const todayPrefix = new Date().toISOString().slice(0, 10);
                         
                         let sentCount = 0;
-                        emps.forEach(e => {
+                        emps.forEach((e: Employee) => {
                           const alreadySent = sentEmails.some(mail => 
                             mail.employee_id === e.employee_id && 
                             mail.subject === "Weekend Notice" && 
@@ -228,12 +228,12 @@ function Dashboard() {
                         return;
                       }
 
-                      const emps = storage.getEmployees();
+                      const emps = await storage.getEmployees();
                       const recs = storage.getRecords(date);
                       const presentIds = new Set(recs.map(r => r.employee_id));
                       
-                      const absentEmps = emps.filter(e => !presentIds.has(e.employee_id));
-                      absentEmps.forEach(e => {
+                      const absentEmps = emps.filter((e: Employee) => !presentIds.has(e.employee_id));
+                      absentEmps.forEach((e: Employee) => {
                         storage.saveRecord({
                           employee_id: e.employee_id,
                           date,
@@ -275,7 +275,7 @@ function Dashboard() {
                       nextSunday.setDate(today.getDate() + (daysToSunday === 0 ? 7 : daysToSunday));
                       const nextSundayStr = nextSunday.toISOString().slice(0, 10);
 
-                      const emps = storage.getEmployees();
+                      const emps = await storage.getEmployees();
                       if (emps.length === 0) {
                         toast.error("No employees found to notify.");
                         return;

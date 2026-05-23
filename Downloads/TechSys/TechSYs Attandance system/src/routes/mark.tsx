@@ -41,24 +41,26 @@ function MarkPage() {
     const user = JSON.parse(localStorage.getItem("ts_active_user") || "null");
     setActiveUser(user);
     if (user && user.role === "employee") {
-      const emps = storage.getEmployees();
-      const emp = emps.find(e => e.employee_id === user.employee_id);
-      if (emp) {
-        setEmployee(emp);
-        const recs = storage.getRecords(todayStr());
-        setRecord(recs.find(r => r.employee_id === emp.employee_id) ?? null);
-        setStep("attendance");
-      }
+      (async () => {
+        const emps = await storage.getEmployees();
+        const emp = emps.find((e: Employee) => e.employee_id === user.employee_id);
+        if (emp) {
+          setEmployee(emp);
+          const recs = storage.getRecords(todayStr());
+          setRecord(recs.find(r => r.employee_id === emp.employee_id) ?? null);
+          setStep("attendance");
+        }
+      })();
     }
   }, []);
 
   // ── Search Employee ───────────────────────────────────────────────────────
-  const searchEmployee = (e?: React.FormEvent) => {
+  const searchEmployee = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!searchId.trim()) return;
     
-    const emps = storage.getEmployees();
-    const emp = emps.find(e => e.employee_id.toLowerCase() === searchId.trim().toLowerCase());
+    const emps = await storage.getEmployees();
+    const emp = emps.find((e: Employee) => e.employee_id.toLowerCase() === searchId.trim().toLowerCase());
     
     if (!emp) {
       toast.error("Employee Not Found", { description: `No employee matches the ID: ${searchId}` });

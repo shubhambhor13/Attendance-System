@@ -21,11 +21,17 @@ function EmployeesPage() {
   const [form, setForm] = useState({ employee_id: "", name: "", email: "", department: "", role: "" });
   const [saving, setSaving] = useState(false);
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
-    const data = storage.getEmployees();
-    setEmps(data.sort((a, b) => a.employee_id.localeCompare(b.employee_id)));
-    setLoading(false);
+    try {
+      const data = await storage.getEmployees();
+      setEmps(data.sort((a, b) => a.employee_id.localeCompare(b.employee_id)));
+    } catch (err) {
+      console.error('Failed to load employees:', err);
+      toast.error("Failed to load employees from database");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -53,7 +59,7 @@ function EmployeesPage() {
 
   useEffect(() => { setPage(1); }, [q]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.employee_id.trim() || !form.name.trim()) {
       toast.error("Employee ID and name are required");
@@ -61,7 +67,7 @@ function EmployeesPage() {
     }
     setSaving(true);
     try {
-      const newEmp = storage.saveEmployee({
+      const newEmp = await storage.saveEmployee({
         employee_id: form.employee_id.trim().toUpperCase(),
         name: form.name.trim(),
         email: form.email.trim() || null,
@@ -86,10 +92,10 @@ function EmployeesPage() {
     }
   };
 
-  const handleDelete = (idOrEmpId: string, name: string) => {
+  const handleDelete = async (idOrEmpId: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
       try {
-        storage.deleteEmployee(idOrEmpId);
+        await storage.deleteEmployee(idOrEmpId);
         emailService.syncDatabaseWithServer().catch(console.error);
         toast.success("Employee deleted");
         load();

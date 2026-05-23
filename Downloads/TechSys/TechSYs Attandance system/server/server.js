@@ -124,7 +124,7 @@ const createOtpEmailTemplate = (employeeName, otp) => `
     .header p { color: #3b82f6; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; }
     .content { padding: 44px 40px 36px; }
     .greeting { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0 0 10px; }
-    .description { font-size: 14px; line-height: 1.7; color: #64748b; margin: 0 0 36px; }
+    .description { font-size: 14px; line-height: 1.7; color: #64748b; margin: 0 0 36px;}
     .otp-block { text-align: center; margin: 0 0 36px; }
     .otp-divider { color: #94a3b8; font-size: 16px; letter-spacing: 0.08em; margin: 0 0 18px; font-family: monospace; }
     .otp-code { font-family: 'Courier New', monospace; font-size: 52px; font-weight: 900; color: #1e40af; letter-spacing: 0.25em; margin: 0 0 18px; line-height: 1; display: block; }

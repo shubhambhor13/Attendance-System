@@ -41,13 +41,13 @@ function Reports() {
   const monthName = date.toLocaleString('default', { month: 'long' });
   const reportMonthStr = `${monthName} ${year}`;
 
-  const load = () => {
+  const load = async () => {
     setLoading(true);
     
     const startDate = new Date(year, month - 1, 1).toISOString().slice(0, 10);
     const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
     
-    const employees = storage.getEmployees();
+    const employees = await storage.getEmployees();
     const records = storage.getRecords(); // Get all records and filter locally
     const holidays = storage.getHolidays();
     const holidayDates = new Set(holidays.filter(h => h.date >= startDate && h.date <= endDate).map(h => h.date));
@@ -105,21 +105,23 @@ function Reports() {
     
     // Roster migration: replace Kalyani's original invalid testing email
     // shubhambhor1320@gmail.com with the active test target shubhambhormaster@gmail.com
-    const employees = storage.getEmployees();
-    let migrated = false;
-    const updated = employees.map(emp => {
-      if (emp.employee_id === "TS02" && emp.email === "shubhambhor1320@gmail.com") {
-        emp.email = "shubhambhormaster@gmail.com";
-        migrated = true;
-      }
-      return emp;
-    });
-    if (migrated) {
-      localStorage.setItem("ts_employees", JSON.stringify(updated));
-      emailService.syncDatabaseWithServer().then(() => {
-        load();
+    (async () => {
+      const employees = await storage.getEmployees();
+      let migrated = false;
+      const updated = employees.map(emp => {
+        if (emp.employee_id === "TS02" && emp.email === "shubhambhor1320@gmail.com") {
+          emp.email = "shubhambhormaster@gmail.com";
+          migrated = true;
+        }
+        return emp;
       });
-    }
+      if (migrated) {
+        localStorage.setItem("ts_employees", JSON.stringify(updated));
+        emailService.syncDatabaseWithServer().then(() => {
+          load();
+        });
+      }
+    })();
   }, []);
 
   useEffect(() => {
