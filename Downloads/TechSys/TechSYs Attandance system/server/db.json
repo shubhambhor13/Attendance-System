@@ -1,34 +1,7 @@
 {
   "employees": [],
   "records": [],
-  "logs": [
-    {
-      "id": "nod_1779543101213",
-      "employee_id": "TS01",
-      "employee_name": "Shubham Bhor",
-      "to": "shubhambhormaster@gmail.com",
-      "subject": "Welcome to TechSys Services!",
-      "status": "sent",
-      "sent_at": "2026-05-23T13:31:41.213Z",
-      "previewUrl": null
-    }
-  ],
-  "tenants": {
-    "techsysservices9294@gmail.com": {
-      "employees": [
-        {
-          "employee_id": "TS01",
-          "name": "Shubham Bhor",
-          "email": "shubhambhor1320@gmail.com",
-          "department": "Engineering",
-          "role": "AI and Automation",
-          "id": "8fcfbc3b-a4b5-4126-b28a-57e7b45eb6b3",
-          "created_at": "2026-05-23T13:31:38.854Z"
-        }
-      ],
-      "records": [],
-      "holidays": []
-    }
-  },
+  "logs": [],
+  "tenants": {},
   "users": []
 }
