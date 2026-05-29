@@ -28,45 +28,33 @@ export type Holiday = {
   created_at?: string;
 };
 
-const EMPLOYEES_KEY = "ts_employees";
 const RECORDS_KEY = "ts_records";
 const HOLIDAYS_KEY = "ts_holidays";
 
 export const storage = {
   getEmployees: async (): Promise<Employee[]> => {
-    // If Supabase is not configured, use localStorage
     if (!supabase) {
-      return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
+      throw new Error("Supabase is not configured. Please check your environment variables.");
     }
     
     try {
       const { data, error } = await supabase.from('employees').select('*').order('employee_id');
       if (error) {
         console.error('[Storage] Error fetching employees from Supabase:', error);
-        // Fallback to localStorage if Supabase fails
-        return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
+        throw new Error(error.message || "Failed to fetch employees from database");
       }
       return data || [];
     } catch (err) {
       console.error('[Storage] Error fetching employees:', err);
-      // Fallback to localStorage if Supabase fails
-      return JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
+      throw err;
     }
   },
   saveEmployee: async (emp: Omit<Employee, "id">) => {
-    const id = emp.employee_id.trim().toUpperCase();
-    
-    // If Supabase is not configured, use localStorage
     if (!supabase) {
-      const emps = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || "[]");
-      if (emps.some((e: Employee) => e.employee_id === id)) {
-        throw new Error(`Employee ID ${id} already exists`);
-      }
-      const newEmp = { ...emp, employee_id: id, id: crypto.randomUUID(), created_at: new Date().toISOString() };
-      emps.push(newEmp);
-      localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(emps));
-      return newEmp;
+      throw new Error("Supabase is not configured. Please check your environment variables.");
     }
+    
+    const id = emp.employee_id.trim().toUpperCase();
     
     try {
       // Check if employee already exists in Supabase
@@ -83,14 +71,7 @@ export const storage = {
       
       if (error) {
         console.error('[Storage] Error saving employee to Supabase:', error);
-        // Fallback to localStorage if Supabase fails
-        const emps = await storage.getEmployees();
-        if (emps.some((e: Employee) => e.employee_id === id)) {
-          throw new Error(`Employee ID ${id} already exists`);
-        }
-        emps.push(newEmp);
-        localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(emps));
-        return newEmp;
+        throw new Error(error.message || "Failed to save employee to database");
       }
       
       return data;
@@ -137,25 +118,33 @@ export const storage = {
     localStorage.setItem(HOLIDAYS_KEY, JSON.stringify(filtered));
   },
   deleteEmployee: async (idOrEmpId: string) => {
+    if (!supabase) {
+      throw new Error("Supabase is not configured. Please check your environment variables.");
+    }
+
     try {
-      const emps = await storage.getEmployees();
-      const emp = emps.find((e: Employee) => e.id === idOrEmpId || e.employee_id === idOrEmpId);
+      // We don't need to fetch all employees first, we can just delete by employee_id or id.
+      // But we need to know the employee_id to delete their local records.
+      // Let's delete by ID or employee_id.
+      
+      let empIdToDelete = idOrEmpId;
+      
+      // If it looks like a UUID, we can find the employee_id first to clean up records
+      // Alternatively, just delete from supabase.
+      
+      const { data: emp, error: fetchError } = await supabase
+        .from('employees')
+        .select('*')
+        .or(`id.eq.${idOrEmpId},employee_id.eq.${idOrEmpId}`)
+        .single();
+        
       if (!emp) return;
 
-      // Delete from Supabase if configured
-      if (supabase) {
-        const { error } = await supabase.from('employees').delete().eq('employee_id', emp.employee_id);
-        
-        if (error) {
-          console.error('[Storage] Error deleting employee from Supabase:', error);
-          // Fallback to localStorage if Supabase fails
-          const filteredEmps = emps.filter((e: Employee) => e.id !== emp.id && e.employee_id !== emp.employee_id);
-          localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(filteredEmps));
-        }
-      } else {
-        // If Supabase is not configured, use localStorage
-        const filteredEmps = emps.filter((e: Employee) => e.id !== emp.id && e.employee_id !== emp.employee_id);
-        localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(filteredEmps));
+      const { error } = await supabase.from('employees').delete().eq('id', emp.id);
+      
+      if (error) {
+        console.error('[Storage] Error deleting employee from Supabase:', error);
+        throw new Error(error.message || "Failed to delete employee from database");
       }
 
       // Also delete associated records from localStorage
@@ -168,7 +157,6 @@ export const storage = {
     }
   },
   clearAll: () => {
-    localStorage.removeItem(EMPLOYEES_KEY);
     localStorage.removeItem(RECORDS_KEY);
     localStorage.removeItem(HOLIDAYS_KEY);
   }

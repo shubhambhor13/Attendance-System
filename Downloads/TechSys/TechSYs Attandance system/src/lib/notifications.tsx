@@ -574,9 +574,20 @@ export const emailService = {
         const errData = await response.json().catch(() => ({}));
         errorMsg = errData?.error || `HTTP ${response.status}`;
         status = "failed";
+        console.error("[Email Engine] Email service failed:", errorMsg);
+        toast.error("Welcome Email Failed!", {
+          description: `Email service error: "${errorMsg}". Please check EMAIL_USER and EMAIL_PASS.`,
+          duration: 10000
+        });
       }
     } catch (err: any) {
+      errorMsg = err?.message || String(err);
+      status = "failed";
       console.warn("[Email Engine] Email service unreachable:", err);
+      toast.error("Server Unreachable", {
+        description: "Make sure the backend server is running.",
+        duration: 8000,
+      });
     }
 
     const emailEntry: SentEmail = {
@@ -596,22 +607,24 @@ export const emailService = {
     emails.unshift(emailEntry);
     localStorage.setItem(SENT_EMAILS_KEY, JSON.stringify(emails));
 
-    toast.success("Welcome Email Dispatched!", {
-      description: previewUrl ? (
-        <span className="flex flex-col gap-1 mt-0.5">
-          <span className="text-foreground">Sent welcome onboarding package to ${employee.name}.</span>
-          <a 
-            href={previewUrl} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-command font-semibold text-[10px] tracking-wider uppercase border border-command/30 bg-command/5 px-2 py-0.5 rounded w-fit hover:bg-command hover:text-white transition-all"
-          >
-            ⚡ View HTML Welcome Package
-          </a>
-        </span>
-      ) : `Sent welcome onboarding package to ${employee.name} (${employee.email})`,
-      duration: 10000,
-    });
+    if (status !== "failed") {
+      toast.success("Welcome Email Dispatched!", {
+        description: previewUrl ? (
+          <span className="flex flex-col gap-1 mt-0.5">
+            <span className="text-foreground">Sent welcome onboarding package to ${employee.name}.</span>
+            <a 
+              href={previewUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-command font-semibold text-[10px] tracking-wider uppercase border border-command/30 bg-command/5 px-2 py-0.5 rounded w-fit hover:bg-command hover:text-white transition-all"
+            >
+              ⚡ View HTML Welcome Package
+            </a>
+          </span>
+        ) : `Sent welcome onboarding package to ${employee.name} (${employee.email})`,
+        duration: 10000,
+      });
+    }
 
     return status !== "failed";
   },

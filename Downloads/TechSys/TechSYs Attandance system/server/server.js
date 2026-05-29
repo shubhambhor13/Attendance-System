@@ -114,7 +114,7 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Attendance System – OTP Verification</title>
+  <title>TechSys Services – OTP Verification</title>
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; color: #334155; }
     .wrapper { padding: 40px 16px; }
@@ -144,7 +144,7 @@ const createOtpEmailTemplate = (employeeName, otp) => `
     <div class="container">
 
       <div class="header">
-        <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+        <h1>TECHSYS SERVICES</h1>
         <p>Secure Employee Verification System</p>
       </div>
 
@@ -169,7 +169,7 @@ const createOtpEmailTemplate = (employeeName, otp) => `
 
         <div class="signature">
           Best Regards,<br>
-          <strong>Digital Attendance System</strong><br>
+          <strong>TechSys Services</strong><br>
           <a href="https://www.techsysservices.com">techsysservices.com</a>
         </div>
       </div>
@@ -406,7 +406,7 @@ const deleteOtp = async (email) => {
 };
 
 // Professional TechSys Services Email Branding Template Creator
-const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, checkOut, hours, subjectOverride, messageOverride) => {
+const createBrandedTemplate = (employeeName, employeeId, department, role, date, status, checkIn, checkOut, hours, subjectOverride, messageOverride) => {
   const formattedDate = new Date(date).toLocaleDateString(undefined, {
     weekday: "long",
     year: "numeric",
@@ -434,7 +434,7 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Daily Attendance Summary - Digital Attendance System</title>
+        <title>Daily Attendance Summary - TechSys Services</title>
         <style>
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -583,7 +583,7 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
       <body>
         <div class="container">
           <div class="header">
-            <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+            <h1>TECHSYS SERVICES</h1>
             <p>Enterprise Attendance & Workforce Management</p>
           </div>
           <div class="content">
@@ -592,6 +592,28 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
             <p class="message-body">
               Your attendance summary for ${formattedDate} has been successfully recorded. Please review your daily work shift details below.
             </p>
+            <div class="details-card">
+              <div class="details-title">EMPLOYEE DETAILS</div>
+              <div class="details-grid">
+                <div class="details-row">
+                  <div class="details-label">Employee Name</div>
+                  <div class="details-val">${employeeName}</div>
+                </div>
+                <div class="details-row">
+                  <div class="details-label">Employee ID</div>
+                  <div class="details-val">${employeeId}</div>
+                </div>
+                <div class="details-row">
+                  <div class="details-label">Department</div>
+                  <div class="details-val">${department || "-"}</div>
+                </div>
+                <div class="details-row">
+                  <div class="details-label">Role</div>
+                  <div class="details-val">${role || "-"}</div>
+                </div>
+              </div>
+            </div>
+
 
             <div class="details-card">
               <div class="details-title">ATTENDANCE AUDIT CARD</div>
@@ -626,17 +648,17 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
             </div>
 
             <p class="message-body">
-              Thank you for your contribution and dedication towards Digital Attendance System. We appreciate your commitment and professionalism.
+              Thank you for your contribution and dedication towards TechSys Services. We appreciate your commitment and professionalism.
             </p>
 
             <div class="signature">
               Best Regards,<br>
-              <span class="signature-title">Digital Attendance System</span><br>
+              <span class="signature-title">TechSys Services</span><br>
               <a href="https://techsysservices.com" target="_blank" class="signature-link">techsysservices.com</a>
             </div>
           </div>
           <div class="footer">
-            <p class="footer-brand">DIGITAL ATTENDANCE SYSTEM</p>
+            <p class="footer-brand">TECHSYS SERVICES</p>
             <p>Confidentiality Notice: This is an automated email communication. Please do not reply to this email.</p>
             <p>&copy; 2026 TechSys Services. All rights reserved.</p>
           </div>
@@ -671,7 +693,7 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Digital Attendance System Update</title>
+      <title>TechSys Services Update</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -796,12 +818,12 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
     <body>
       <div class="container">
         <div class="header">
-          <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+          <h1>TECHSYS SERVICES</h1>
           <p>Enterprise Attendance & Notifications</p>
         </div>
         <div class="content">
           <p class="welcome">Hello ${employeeName},</p>
-          <p class="description">Your daily attendance update from Digital Attendance System is ready. Please find the audit details for the recorded shifts below.</p>
+          <p class="description">Your daily attendance update from TechSys Services is ready. Please find the audit details for the recorded shifts below.</p>
           
           <div style="text-align: center;">
             <div class="status-badge">${status}</div>
@@ -849,7 +871,7 @@ const createBrandedTemplate = (employeeName, employeeId, date, status, checkIn, 
 };
 
 // Professional Branded Company Holiday Email Template
-const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
+const createHolidayBrandedTemplate = (employeeName, employeeId, department, role, holidayName, date) => {
   const formattedDate = new Date(date).toLocaleDateString(undefined, {
     weekday: "long",
     year: "numeric",
@@ -863,7 +885,7 @@ const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Company Holiday Notification - Digital Attendance System</title>
+      <title>Company Holiday Notification - TechSys Services</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1012,7 +1034,7 @@ const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+          <h1>TECHSYS SERVICES</h1>
           <p>Official Holiday Notification</p>
         </div>
         <div class="content">
@@ -1025,6 +1047,28 @@ const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
           <p class="message-body">
             We hope you enjoy the holiday and have a wonderful celebration with your family and loved ones.
           </p>
+          <div class="details-card">
+            <div class="details-title">EMPLOYEE DETAILS</div>
+            <div class="details-grid">
+              <div class="details-row">
+                <div class="details-label">Employee Name</div>
+                <div class="details-val">${employeeName}</div>
+              </div>
+              <div class="details-row">
+                <div class="details-label">Employee ID</div>
+                <div class="details-val">${employeeId}</div>
+              </div>
+              <div class="details-row">
+                <div class="details-label">Department</div>
+                <div class="details-val">${department || "-"}</div>
+              </div>
+              <div class="details-row">
+                <div class="details-label">Role</div>
+                <div class="details-val">${role || "-"}</div>
+              </div>
+            </div>
+          </div>
+
 
           <div class="details-card">
             <div class="details-title">Holiday Details</div>
@@ -1047,12 +1091,12 @@ const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
           </div>
 
           <p class="message-body">
-            Thank you for being a valued part of Digital Attendance System.
+            Thank you for being a valued part of TechSys Services.
           </p>
 
           <div class="signature">
             Best Regards,<br>
-            <span class="signature-title">Digital Attendance System</span><br>
+            <span class="signature-title">TechSys Services</span><br>
             <a href="https://techsysservices.com" target="_blank" class="signature-link">techsysservices.com</a>
           </div>
         </div>
@@ -1068,7 +1112,7 @@ const createHolidayBrandedTemplate = (employeeName, holidayName, date) => {
 };
 
 // Professional Branded Sunday Weekly Off Email Template
-const createSundayWeeklyOffBrandedTemplate = (employeeName, date) => {
+const createSundayWeeklyOffBrandedTemplate = (employeeName, employeeId, department, role, date) => {
   const formattedDate = new Date(date).toLocaleDateString(undefined, {
     weekday: "long",
     year: "numeric",
@@ -1082,7 +1126,7 @@ const createSundayWeeklyOffBrandedTemplate = (employeeName, date) => {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Weekly Off Notice - Digital Attendance System</title>
+      <title>Weekly Off Notice - TechSys Services</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1232,14 +1276,14 @@ const createSundayWeeklyOffBrandedTemplate = (employeeName, date) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+          <h1>TECHSYS SERVICES</h1>
           <p>Enterprise Attendance & Workforce Management</p>
         </div>
         <div class="content">
           <p class="welcome">Hello ${employeeName},</p>
           
           <p class="message-body">
-            We would like to inform you that tomorrow, <strong>${formattedDate}</strong>, will be observed as the official weekly off at Digital Attendance System.
+            We would like to inform you that tomorrow, <strong>${formattedDate}</strong>, will be observed as the official weekly off at TechSys Services.
           </p>
           
           <p class="message-body">
@@ -1267,17 +1311,17 @@ const createSundayWeeklyOffBrandedTemplate = (employeeName, date) => {
           </div>
 
           <p class="message-body">
-            Thank you for your continued dedication and contribution towards Digital Attendance System.
+            Thank you for your continued dedication and contribution towards TechSys Services.
           </p>
 
           <div class="signature">
             Best Regards,<br>
-            <span class="signature-title">Digital Attendance System</span><br>
+            <span class="signature-title">TechSys Services</span><br>
             <a href="https://techsysservices.com" target="_blank" class="signature-link">techsysservices.com</a>
           </div>
         </div>
         <div class="footer">
-          <p class="footer-brand">DIGITAL ATTENDANCE SYSTEM</p>
+          <p class="footer-brand">TECHSYS SERVICES</p>
           <p>Confidentiality Notice: This is an automated email communication. Please do not reply to this email.</p>
           <p>&copy; 2026 TechSys Services. All rights reserved.</p>
         </div>
@@ -1288,14 +1332,14 @@ const createSundayWeeklyOffBrandedTemplate = (employeeName, date) => {
 };
 
 // Professional Branded Welcome Onboarding Email Template
-const createWelcomeBrandedTemplate = (employeeName, employeeId, department) => {
+const createWelcomeBrandedTemplate = (employeeName, employeeId, department, role) => {
   return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to Digital Attendance System!</title>
+      <title>Welcome to TechSys Services!</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1434,14 +1478,14 @@ const createWelcomeBrandedTemplate = (employeeName, employeeId, department) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+          <h1>TECHSYS SERVICES</h1>
           <p>Enterprise Workforce Management</p>
         </div>
         <div class="content">
           <p class="welcome">Hello ${employeeName},</p>
           
           <p class="message-body">
-            Welcome to Digital Attendance System!
+            Welcome to TechSys Services!
           </p>
           
           <p class="message-body">
@@ -1467,17 +1511,17 @@ const createWelcomeBrandedTemplate = (employeeName, employeeId, department) => {
           </div>
 
           <p class="message-body">
-            We wish you a successful and rewarding journey with Digital Attendance System.
+            We wish you a successful and rewarding journey with TechSys Services.
           </p>
 
           <div class="signature">
             Best Regards,<br>
-            <span class="signature-title">Digital Attendance System</span><br>
+            <span class="signature-title">TechSys Services</span><br>
             <a href="https://techsysservices.com" target="_blank" class="signature-link">techsysservices.com</a>
           </div>
         </div>
         <div class="footer">
-          <p class="footer-brand">DIGITAL ATTENDANCE SYSTEM</p>
+          <p class="footer-brand">TECHSYS SERVICES</p>
           <p>Confidentiality Notice: This is an automated email communication. Please do not reply to this email.</p>
           <p>&copy; 2026 TechSys Services. All rights reserved.</p>
         </div>
@@ -1488,14 +1532,14 @@ const createWelcomeBrandedTemplate = (employeeName, employeeId, department) => {
 };
 
 // Professional Branded Monthly Attendance Report Email Template
-const createMonthlyReportBrandedTemplate = (employeeName, employeeId, department, reportMonth, stats) => {
+const createMonthlyReportBrandedTemplate = (employeeName, employeeId, department, role, reportMonth, stats) => {
   return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Monthly Attendance Report - Digital Attendance System</title>
+      <title>Monthly Attendance Report - TechSys Services</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1635,7 +1679,7 @@ const createMonthlyReportBrandedTemplate = (employeeName, employeeId, department
     <body>
       <div class="container">
         <div class="header">
-          <h1>DIGITAL ATTENDANCE SYSTEM</h1>
+          <h1>TECHSYS SERVICES</h1>
           <p>Enterprise Attendance & Workforce Management</p>
         </div>
         <div class="content">
@@ -1659,6 +1703,10 @@ const createMonthlyReportBrandedTemplate = (employeeName, employeeId, department
               <div class="details-row">
                 <div class="details-label">Department</div>
                 <div class="details-val">${department || "General"}</div>
+              </div>
+              <div class="details-row">
+                <div class="details-label">Role</div>
+                <div class="details-val">${role || "-"}</div>
               </div>
               <div class="details-row">
                 <div class="details-label">Report Month</div>
@@ -1701,17 +1749,17 @@ const createMonthlyReportBrandedTemplate = (employeeName, employeeId, department
           </div>
 
           <p class="message-body">
-            Thank you for your dedication and contribution towards Digital Attendance System.
+            Thank you for your dedication and contribution towards TechSys Services.
           </p>
 
           <div class="signature">
             Best Regards,<br>
-            <span class="signature-title">Digital Attendance System</span><br>
+            <span class="signature-title">TechSys Services</span><br>
             <a href="https://techsysservices.com" target="_blank" class="signature-link">techsysservices.com</a>
           </div>
         </div>
         <div class="footer">
-          <p class="footer-brand">DIGITAL ATTENDANCE SYSTEM</p>
+          <p class="footer-brand">TECHSYS SERVICES</p>
           <p>Confidentiality Notice: This is an automated email communication. Please do not reply to this email.</p>
           <p>&copy; 2026 TechSys Services. All rights reserved.</p>
         </div>
@@ -1782,17 +1830,7 @@ app.post("/api/send-email", async (req, res) => {
         date
       );
     } else {
-      html = createBrandedTemplate(
-        employee.name,
-        employee.employee_id,
-        date,
-        status,
-        checkIn,
-        checkOut,
-        hours,
-        subjectOverride,
-        messageOverride
-      );
+      html = createBrandedTemplate(employee.name, employee.employee_id, employee.department, employee.role, date, status, checkIn, checkOut, hours, subjectOverride, messageOverride);
     }
 
     const subject = subjectOverride || `[TechSys] Daily Shift Audit - ${status.toUpperCase()} - ${date}`;
@@ -1854,13 +1892,7 @@ app.post("/api/send-monthly-report", async (req, res) => {
   }
 
   try {
-    const html = createMonthlyReportBrandedTemplate(
-      employee.name,
-      employee.employee_id,
-      employee.department,
-      reportMonth,
-      stats
-    );
+    const html = createMonthlyReportBrandedTemplate(employee.name, employee.employee_id, employee.department, employee.role, reportMonth, stats);
 
     const subject = `[TechSys] Monthly Attendance Report - ${reportMonth}`;
 
@@ -1953,15 +1985,7 @@ app.get("/api/send-date-notifications", async (req, res) => {
           dateStr
         );
       } else {
-        html = createBrandedTemplate(
-          emp.name,
-          emp.employee_id,
-          dateStr,
-          status,
-          rec?.check_in || null,
-          rec?.check_out || null,
-          rec?.working_hours ?? null
-        );
+        html = createBrandedTemplate(emp.name, emp.employee_id, emp.department, emp.role, dateStr, status, rec?.check_in || null, rec?.check_out || null, rec?.working_hours ?? null);
       }
 
       const subject = `[TechSys] Shift Audit Notification - ${status.toUpperCase()} - ${dateStr}`;
@@ -2036,7 +2060,7 @@ app.post("/api/send-sunday-off", async (req, res) => {
   }
 
   try {
-    const html = createSundayWeeklyOffBrandedTemplate(employee.name, date);
+    const html = createSundayWeeklyOffBrandedTemplate(employee.name, employee.employee_id, employee.department, employee.role, date);
     const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
     const info = await transporter.sendMail({
@@ -2089,7 +2113,7 @@ app.post("/api/send-welcome", async (req, res) => {
   }
 
   try {
-    const html = createWelcomeBrandedTemplate(employee.name, employee.employee_id, employee.department);
+    const html = createWelcomeBrandedTemplate(employee.name, employee.employee_id, employee.department, employee.role);
     const subject = `Welcome to TechSys Services!`;
 
     const info = await transporter.sendMail({
@@ -2157,7 +2181,7 @@ const startSundayWeeklyOffScheduler = () => {
             }
 
             try {
-              const html = createSundayWeeklyOffBrandedTemplate(employee.name, tomorrowStr);
+              const html = createSundayWeeklyOffBrandedTemplate(employee.name, employee.employee_id, employee.department, employee.role, tomorrowStr);
               const subject = `[TechSys] Sunday Weekly Off Notice - ${new Date(tomorrowStr).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}`;
 
               const info = await transporter.sendMail({

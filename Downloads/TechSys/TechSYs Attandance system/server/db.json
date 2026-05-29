@@ -1,7 +1,54 @@
 {
   "employees": [],
   "records": [],
-  "logs": [],
-  "tenants": {},
+  "logs": [
+    {
+      "id": "nod_1780034130696",
+      "employee_id": "TS01",
+      "employee_name": "Shubham Bhor",
+      "to": "shubhambhormaster@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-05-29T05:55:30.697Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780033715475",
+      "employee_id": "TS01",
+      "employee_name": "Jagruti Patil",
+      "to": "jagrutipatil084@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-05-29T05:48:35.476Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780032446860",
+      "employee_id": "TS01",
+      "employee_name": "Shubham Bhor",
+      "to": "shubhambhormaster@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-05-29T05:27:26.860Z",
+      "previewUrl": null
+    }
+  ],
+  "tenants": {
+    "techsysservices9294@gmail.com": {
+      "employees": [
+        {
+          "employee_id": "TS01",
+          "name": "Shubham Bhor",
+          "email": "shubhambhor1320@gmail.com",
+          "department": "Engineering",
+          "role": "AI and Automation Engineer",
+          "id": "c1f0ef73-8f56-4467-96ee-31c438d5b378",
+          "created_at": "2026-05-29T05:55:28.199Z"
+        }
+      ],
+      "records": [],
+      "holidays": []
+    }
+  },
   "users": []
 }
