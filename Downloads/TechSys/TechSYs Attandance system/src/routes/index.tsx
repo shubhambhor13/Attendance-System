@@ -3,8 +3,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Mail, Globe, ArrowRight, UserPlus, Key, Eye, EyeOff, CheckCircle2, AlertTriangle, KeyRound, RotateCcw, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
-const SERVER = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const SERVER = import.meta.env.VITE_API_URL || "http://127.0.0.1:3001";
 
 // ── 6-cell OTP input ────────────────────────────────────────────────────────
 function RegOtpInput({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled: boolean }) {
@@ -87,6 +88,20 @@ function Index() {
   const [time, setTime] = React.useState(new Date());
 
   React.useEffect(() => {
+    // One-time reset: clear all stale auth data from previous sessions
+    const RESET_VERSION = "v2_reset_20260601";
+    if (localStorage.getItem("ts_reset_version") !== RESET_VERSION) {
+      localStorage.removeItem("ts_system_unlocked");
+      localStorage.removeItem("ts_active_user");
+      localStorage.removeItem("ts_employees");
+      localStorage.removeItem("ts_records");
+      localStorage.removeItem("ts_holidays");
+      localStorage.removeItem("ts_sent_emails");
+      localStorage.setItem("ts_reset_version", RESET_VERSION);
+      setUnlocked(false);
+      console.log("[System] Auth state reset to fresh state.");
+    }
+
     // Auto logout on landing page access to secure administrative console
     if (localStorage.getItem("ts_system_unlocked") === "true") {
       localStorage.removeItem("ts_system_unlocked");
@@ -115,7 +130,7 @@ function Index() {
   const formattedDate = time.toLocaleDateString("en-US", { day: 'numeric', month: 'short', year: 'numeric' });
   const formattedTime = time.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!signInEmail || !signInPassword || !signInKey) {
       toast.error("Required fields missing", { description: "Please fill in all inputs." });
@@ -124,7 +139,7 @@ function Index() {
 
     setLoading(true);
 
-    setTimeout(() => {
+    try {
       // Strictly enforce License Key
       if (signInKey.trim() !== "TechSys#1320") {
         toast.error("Enterprise Activation Error", {
@@ -134,11 +149,23 @@ function Index() {
         return;
       }
 
-      // Check registered users
-      const users = JSON.parse(localStorage.getItem("ts_users") || "[]");
-      const user = users.find((u: any) => u.email.toLowerCase() === signInEmail.toLowerCase() && u.password === signInPassword);
-
       const isFallbackAdmin = signInEmail.toLowerCase() === "admin@techsys.com" && signInPassword === "admin123";
+      
+      let user = null;
+      if (!isFallbackAdmin) {
+        // Fetch from Supabase
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", signInEmail.trim())
+          .single();
+          
+        if (error) {
+          console.error("Login Error:", error);
+        } else if (data && data.password === signInPassword) {
+          user = data;
+        }
+      }
 
       if (user || isFallbackAdmin) {
         // Fetch full admin data to restore standard local storage state
@@ -155,7 +182,7 @@ function Index() {
           .catch(err => console.error("[Sync] Admin hydration failed:", err))
           .finally(() => {
             localStorage.setItem("ts_system_unlocked", "true");
-            localStorage.setItem("ts_active_user", JSON.stringify({ email: signInEmail, name: user?.name || "Administrator" }));
+            localStorage.setItem("ts_active_user", JSON.stringify({ email: signInEmail, name: user?.name || "Administrator", role: "admin" }));
             window.dispatchEvent(new Event("ts_auth_changed"));
             toast.success("Identity Verified", {
               description: `Logged in successfully as ${user?.name || "Administrator"}`
@@ -169,7 +196,11 @@ function Index() {
         });
         setLoading(false);
       }
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      toast.error("Error connecting to database");
+    }
   };
 
   // Step 1: validate form → send OTP
@@ -183,8 +214,13 @@ function Index() {
       toast.error("Password too short", { description: "Minimum 6 characters required." });
       return;
     }
-    const users = JSON.parse(localStorage.getItem("ts_users") || "[]");
-    if (users.some((u: any) => u.email.toLowerCase() === regEmail.toLowerCase())) {
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", regEmail.trim())
+      .maybeSingle();
+
+    if (existingUser) {
       toast.error("Email already registered", { description: "This email is already an admin account." });
       return;
     }
@@ -209,7 +245,8 @@ function Index() {
       if (regTimerRef.current) clearInterval(regTimerRef.current);
       regTimerRef.current = setInterval(() => setRegCountdown(p => { if (p <= 1) { clearInterval(regTimerRef.current!); return 0; } return p - 1; }), 1000);
       toast.success("OTP Sent Successfully!", { description: `Verification code sent to ${regEmail.trim()}` });
-    } catch {
+    } catch (err) {
+      console.error(`[Fetch Error] Endpoint: ${SERVER}/api/send-admin-otp`, err);
       toast.dismiss("otp-loading");
       toast.error("Server Unreachable", { description: "Make sure the backend server is running." });
     } finally {
@@ -233,7 +270,8 @@ function Index() {
       clearInterval(regTimerRef.current!);
       setRegStep("key");
       toast.success("Email Verified ✓", { description: "Now enter your Enterprise Access Key to complete registration." });
-    } catch {
+    } catch (err) {
+      console.error(`[Fetch Error] Endpoint: ${SERVER}/api/verify-otp`, err);
       toast.error("Server Unreachable");
     } finally {
       setLoading(false);
@@ -246,28 +284,48 @@ function Index() {
   }, [regOtp]);
 
   // Step 3: validate key → create account → sign in
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regKey) { toast.error("Key required"); return; }
     setLoading(true);
-    setTimeout(() => {
+    
+    try {
       if (regKey.trim() !== "TechSys#1320") {
         toast.error("Registration Blocked", { description: "Enterprise Access Key invalid." });
         setLoading(false);
         return;
       }
-      const users = JSON.parse(localStorage.getItem("ts_users") || "[]");
-      const newUser = { id: crypto.randomUUID(), name: regName, email: regEmail, password: regPassword };
-      users.push(newUser);
-      localStorage.setItem("ts_users", JSON.stringify(users));
-      // Auto sign-in
-      localStorage.setItem("ts_system_unlocked", "true");
-      localStorage.setItem("ts_active_user", JSON.stringify({ email: regEmail, name: regName }));
-      window.dispatchEvent(new Event("ts_auth_changed"));
-      toast.success("Registration Complete!", { description: `Welcome, ${regName}. Console unlocked.` });
-      navigate({ to: "/dashboard" });
+      
+      const { data, error } = await supabase
+        .from("users")
+        .insert([
+          {
+            name: regName.trim(),
+            email: regEmail.trim(),
+            password: regPassword,
+            role: "admin"
+          }
+        ]);
+
+      console.log("Register Data:", data);
+      console.log("Register Error:", error);
+
+      if (error) {
+        console.error("Registration Error:", error);
+        toast.error("Registration Failed", { description: error.message || "Failed to create user in database." });
+        setLoading(false);
+        return;
+      }
+      
+      toast.success("Registration Complete!", { description: `Welcome, ${regName}. Please sign in.` });
+      resetRegFlow();
+      setActiveTab("signin");
       setLoading(false);
-    }, 900);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      toast.error("Error connecting to database");
+    }
   };
 
   const resetRegFlow = () => {
@@ -307,7 +365,8 @@ function Index() {
       if (empTimerRef.current) clearInterval(empTimerRef.current);
       empTimerRef.current = setInterval(() => setEmpCountdown(p => { if (p <= 1) { clearInterval(empTimerRef.current!); return 0; } return p - 1; }), 1000);
       toast.success("OTP Sent Successfully!", { description: `Verification code sent to ${empEmail.trim()}` });
-    } catch {
+    } catch (err) {
+      console.error(`[Fetch Error] Endpoint: ${SERVER}/api/send-otp`, err);
       toast.dismiss("otp-loading");
       toast.error("Server Unreachable", { description: "Make sure the backend server is running." });
     } finally {
@@ -355,7 +414,8 @@ function Index() {
       window.dispatchEvent(new Event("ts_auth_changed"));
       toast.success("Welcome!", { description: `Logged in successfully as ${data.employeeName}` });
       navigate({ to: "/dashboard" });
-    } catch {
+    } catch (err) {
+      console.error(`[Fetch Error] Endpoint: ${SERVER}/api/verify-otp`, err);
       toast.error("Server Unreachable");
     } finally {
       setLoading(false);

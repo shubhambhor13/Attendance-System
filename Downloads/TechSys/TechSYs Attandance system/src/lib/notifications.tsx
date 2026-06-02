@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import React from "react";
 
-const SERVER = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const SERVER = import.meta.env.VITE_API_URL || "http://127.0.0.1:3001";
 
 export type SentEmail = {
   id: string;

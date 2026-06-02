@@ -3,33 +3,23 @@
   "records": [],
   "logs": [
     {
-      "id": "nod_1780034130696",
-      "employee_id": "TS01",
-      "employee_name": "Shubham Bhor",
-      "to": "shubhambhormaster@gmail.com",
+      "id": "nod_1780310808843",
+      "employee_id": "TS03",
+      "employee_name": "Pramod Kudal",
+      "to": "pramodkudal212@gmail.com",
       "subject": "Welcome to TechSys Services!",
       "status": "sent",
-      "sent_at": "2026-05-29T05:55:30.697Z",
+      "sent_at": "2026-06-01T10:46:48.844Z",
       "previewUrl": null
     },
     {
-      "id": "nod_1780033715475",
-      "employee_id": "TS01",
-      "employee_name": "Jagruti Patil",
-      "to": "jagrutipatil084@gmail.com",
+      "id": "nod_1780309907798",
+      "employee_id": "TS02",
+      "employee_name": "Tejal Sonar",
+      "to": "sonartejal8@gmail.com",
       "subject": "Welcome to TechSys Services!",
       "status": "sent",
-      "sent_at": "2026-05-29T05:48:35.476Z",
-      "previewUrl": null
-    },
-    {
-      "id": "nod_1780032446860",
-      "employee_id": "TS01",
-      "employee_name": "Shubham Bhor",
-      "to": "shubhambhormaster@gmail.com",
-      "subject": "Welcome to TechSys Services!",
-      "status": "sent",
-      "sent_at": "2026-05-29T05:27:26.860Z",
+      "sent_at": "2026-06-01T10:31:47.800Z",
       "previewUrl": null
     }
   ],
@@ -37,13 +27,31 @@
     "techsysservices9294@gmail.com": {
       "employees": [
         {
+          "id": "eba16146-cc8e-46e2-89e7-cc90b5ca2fd3",
           "employee_id": "TS01",
           "name": "Shubham Bhor",
           "email": "shubhambhor1320@gmail.com",
           "department": "Engineering",
           "role": "AI and Automation Engineer",
-          "id": "c1f0ef73-8f56-4467-96ee-31c438d5b378",
-          "created_at": "2026-05-29T05:55:28.199Z"
+          "created_at": "2026-05-29T08:24:53.032+00:00"
+        },
+        {
+          "id": "377959f0-98c4-4944-9308-692f36905d3a",
+          "employee_id": "TS02",
+          "name": "Tejal Sonar",
+          "email": "sonartejal8@gmail.com",
+          "department": "Engineering",
+          "role": "Database Adminstrator",
+          "created_at": "2026-06-01T10:31:44.543+00:00"
+        },
+        {
+          "id": "63eda34e-e341-4356-9d0f-67c55a86977c",
+          "employee_id": "TS03",
+          "name": "Pramod Kudal",
+          "email": "pramodkudal212@gmail.com",
+          "department": "Administration",
+          "role": "Founder & CEO",
+          "created_at": "2026-06-01T10:46:45.994+00:00"
         }
       ],
       "records": [],

@@ -359,7 +359,7 @@ const saveAttendanceRecord = async (record) => {
   return data;
 };
 
-// OTP storage: Supabase in production, in-memory fallback for local dev
+// OTP storage: always in-memory; Supabase used only if otp_codes table exists
 const saveOtp = async (email, otp, employeeId) => {
   const key = email.toLowerCase();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
@@ -370,8 +370,8 @@ const saveOtp = async (email, otp, employeeId) => {
       employee_id: employeeId,
       expires_at: expiresAt,
     });
-    if (error) console.error("[Database] Error saving OTP:", error);
-    return;
+    if (!error) return;
+    console.warn("[OTP] Supabase save failed (table missing?), using in-memory:", error.message);
   }
   otpStore.set(key, { otp, expires_at: expiresAt, employee_id: employeeId });
 };
@@ -386,11 +386,8 @@ const getOtp = async (email) => {
       .order("created_at", { ascending: false })
       .limit(1)
       .single();
-    if (error) {
-      console.error("[Database] Error fetching OTP:", error);
-      return null;
-    }
-    return data;
+    if (!error && data) return data;
+    if (error) console.warn("[OTP] Supabase fetch failed (table missing?), using in-memory:", error.message);
   }
   return otpStore.get(key) || null;
 };
@@ -399,8 +396,8 @@ const deleteOtp = async (email) => {
   const key = email.toLowerCase();
   if (supabase) {
     const { error } = await supabase.from("otp_codes").delete().eq("email", key);
-    if (error) console.error("[Database] Error deleting OTP:", error);
-    return;
+    if (!error) { otpStore.delete(key); return; }
+    console.warn("[OTP] Supabase delete failed (table missing?), using in-memory:", error.message);
   }
   otpStore.delete(key);
 };
