@@ -155,6 +155,16 @@ function MarkPage() {
     setRecord(null);
   };
 
+  // ── Clear today's record (for debugging) ──────────────────────────────────
+  const clearTodayRecord = () => {
+    if (!employee) return;
+    if (window.confirm(`Clear ${employee.name}'s attendance record for today?`)) {
+      storage.deleteRecord(employee.employee_id, todayStr());
+      setRecord(null);
+      toast.success("Record Cleared", { description: "You can now check in again." });
+    }
+  };
+
   return (
     <main className="mx-auto max-w-xl px-4 sm:px-6 py-10">
       {/* Page Header */}
@@ -252,12 +262,22 @@ function MarkPage() {
               <p className="text-xs font-mono-tech text-[var(--signal-green)] font-bold">
                 Identity verified · {employee.employee_id}
               </p>
-              <button
-                onClick={reset}
-                className="ml-auto text-[10px] font-mono-tech text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-              >
-                <RotateCcw className="h-3 w-3" /> {activeUser?.role === "employee" ? "Refresh Sync" : "New Session"}
-              </button>
+              <div className="ml-auto flex items-center gap-2">
+                {record && (
+                  <button
+                    onClick={clearTodayRecord}
+                    className="text-[10px] font-mono-tech text-amber-500 hover:text-amber-400 flex items-center gap-1 transition-colors"
+                  >
+                    <AlertCircle className="h-3 w-3" /> Clear Record
+                  </button>
+                )}
+                <button
+                  onClick={reset}
+                  className="text-[10px] font-mono-tech text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <RotateCcw className="h-3 w-3" /> {activeUser?.role === "employee" ? "Refresh Sync" : "New Session"}
+                </button>
+              </div>
             </div>
 
             {/* Employee Card */}

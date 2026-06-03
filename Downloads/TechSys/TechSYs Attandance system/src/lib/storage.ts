@@ -85,6 +85,11 @@ export const storage = {
     if (date) return all.filter(r => r.date === date);
     return all;
   },
+  deleteRecord: (employee_id: string, date: string) => {
+    const all = JSON.parse(localStorage.getItem(RECORDS_KEY) || "[]") as AttendanceRecord[];
+    const filtered = all.filter(r => !(r.employee_id === employee_id && r.date === date));
+    localStorage.setItem(RECORDS_KEY, JSON.stringify(filtered));
+  },
   saveRecord: (record: Omit<AttendanceRecord, "id">) => {
     const all = JSON.parse(localStorage.getItem(RECORDS_KEY) || "[]") as AttendanceRecord[];
     const newRecord = { ...record, id: crypto.randomUUID(), created_at: new Date().toISOString() };

@@ -3,6 +3,86 @@
   "records": [],
   "logs": [
     {
+      "id": "nod_1780377889784",
+      "employee_id": "TS12",
+      "employee_name": "Jagruti Patil",
+      "to": "jagupatil2501@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T05:24:49.786Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780377543974",
+      "employee_id": "TS11",
+      "employee_name": "Nakul Pansre",
+      "to": "nakulpansre1111@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T05:19:03.974Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780377409938",
+      "employee_id": "TS10",
+      "employee_name": "Swapnil Sonar",
+      "to": "swapnilsonar81@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T05:16:49.939Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780377315833",
+      "employee_id": "TS09",
+      "employee_name": "Rupesh Wanale",
+      "to": "rupesh2231122@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T05:15:15.834Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780376928048",
+      "employee_id": "TS07",
+      "employee_name": "Rakesh Sonawane",
+      "to": "srakesh090@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T05:08:48.051Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780375925989",
+      "employee_id": "TS06",
+      "employee_name": "Milind Ahirrao",
+      "to": "milindahirrao173@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T04:52:05.991Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780375761935",
+      "employee_id": "TS05",
+      "employee_name": "Gita Aher",
+      "to": "gitaaher1988@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T04:49:21.937Z",
+      "previewUrl": null
+    },
+    {
+      "id": "nod_1780375574927",
+      "employee_id": "TS04",
+      "employee_name": "Pooja Thore",
+      "to": "dargudepooja@gmail.com",
+      "subject": "Welcome to TechSys Services!",
+      "status": "sent",
+      "sent_at": "2026-06-02T04:46:14.930Z",
+      "previewUrl": null
+    },
+    {
       "id": "nod_1780310808843",
       "employee_id": "TS03",
       "employee_name": "Pramod Kudal",
@@ -52,6 +132,87 @@
           "department": "Administration",
           "role": "Founder & CEO",
           "created_at": "2026-06-01T10:46:45.994+00:00"
+        },
+        {
+          "id": "1626fe10-024f-4393-b562-5cab60f82b5a",
+          "employee_id": "TS04",
+          "name": "Pooja Thore",
+          "email": "dargudepooja@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T04:46:09.906+00:00"
+        },
+        {
+          "id": "fdfa4092-9979-49b1-86ae-ee79f51e4694",
+          "employee_id": "TS05",
+          "name": "Gita Aher",
+          "email": "gitaaher1988@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T04:49:16.653+00:00"
+        },
+        {
+          "id": "48cd0298-4b18-4931-80f5-bccc64a206bb",
+          "employee_id": "TS06",
+          "name": "Milind Ahirrao",
+          "email": "milindahirrao173@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T04:52:01.805+00:00"
+        },
+        {
+          "id": "e81b48d4-29b8-48ba-85a0-b861d8a3bc6c",
+          "employee_id": "TS07",
+          "name": "Rakesh Sonawane",
+          "email": "srakesh090@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T05:08:42.834+00:00"
+        },
+        {
+          "id": "02606d36-fa66-4025-bbe6-37829729c2d9",
+          "employee_id": "TS08",
+          "name": "Savita Bhavar",
+          "email": "savitabhavar@yahoo.com",
+          "department": "Quality Assurance (QA)",
+          "role": "Quality Control Executive",
+          "created_at": "2026-06-02T05:13:55.574+00:00"
+        },
+        {
+          "id": "5f1093de-84a0-452e-8aa2-d5bd7974517e",
+          "employee_id": "TS09",
+          "name": "Rupesh Wanale",
+          "email": "rupesh2231122@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T05:15:11.945+00:00"
+        },
+        {
+          "id": "ea08df38-91af-491f-a577-739128e2cbd6",
+          "employee_id": "TS10",
+          "name": "Swapnil Sonar",
+          "email": "swapnilsonar81@gmail.com",
+          "department": "Back Office",
+          "role": "Data Entry Executive",
+          "created_at": "2026-06-02T05:16:45.852+00:00"
+        },
+        {
+          "id": "a10ebbc1-fc6c-4c37-b1aa-300a6b3e1fd0",
+          "employee_id": "TS11",
+          "name": "Nakul Pansre",
+          "email": "nakulpansre1111@gmail.com",
+          "department": "Adminstrator",
+          "role": "Co-Founder",
+          "created_at": "2026-06-02T05:18:54.907+00:00"
+        },
+        {
+          "id": "f4a7b5da-4741-476d-b119-2cc601fcdabc",
+          "employee_id": "TS12",
+          "name": "Jagruti Patil",
+          "email": "jagupatil2501@gmail.com",
+          "department": "Human Resources (HR)",
+          "role": "Talent Acquisition Executive",
+          "created_at": "2026-06-02T05:24:45.386+00:00"
         }
       ],
       "records": [],
